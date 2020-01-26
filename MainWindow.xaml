@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:XMLSigner"
         mc:Ignorable="d"
         Title="XML Signing" Height="70" Width="400">
-    <Grid>
-        <TextBox Name="ServerFileName" HorizontalAlignment="Left" Margin="10,10,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="307"/>
+    <Grid Height="35">
+        <TextBox Name="ServerFileName" HorizontalAlignment="Left" Margin="80,10,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="237"/>
         <Button Content="Sign" HorizontalAlignment="Left" Margin="322,10,0,0" VerticalAlignment="Top" Width="68" Click="SignButtonClicked"/>
+        <Button Content="Choose File" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="ChooseFileButton_Click"/>
     </Grid>
 </Window>
