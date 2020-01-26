@@ -57,24 +57,42 @@ namespace XMLSigner
             ///Certificate Verification
 
             //https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.verify?view=netframework-4.8
-            if (cert.Verify()) {
-                MessageBox.Show("Verified");
+            /*if (cert.Verify()) {
+                MessageBox.Show("Cert Verified");
             } else {
-                MessageBox.Show("Not Verified");
-            }
+                MessageBox.Show("Cert Not Verified");
+            }*/
 
             //https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.notafter?view=netframework-4.8
             DateTime currentTime = GetNetworkTime();
-            if(currentTime> cert.NotAfter) {
+            /*if(currentTime> cert.NotAfter) {
                 MessageBox.Show("Expired");
                 return;
             } else {
                 MessageBox.Show("Valid");
-            }
+            }*/
             //////////////////
 
             SignXml(xmlDoc, cert).Save(serverFileName + "_signed.xml");
 
+            XmlDocument xmlDocTrue = new XmlDocument();
+            xmlDocTrue.PreserveWhitespace = true;
+            xmlDocTrue.Load(serverFileName);
+            SignXml(xmlDocTrue, cert).Save(serverFileName + "_true.xml");
+
+            XmlDocument xmlDocFalse = new XmlDocument();
+            xmlDocFalse.PreserveWhitespace = false;
+            xmlDocFalse.Load(serverFileName);
+            SignXml(xmlDocFalse, cert).Save(serverFileName + "_false.xml");
+
+            XmlDocument signedXmlDoc = new XmlDocument();
+            signedXmlDoc.Load(serverFileName + "_false.xml");
+            SignedXml signedXml = new SignedXml(signedXmlDoc);
+            if(signedXml.CheckSignature()) {
+                MessageBox.Show("Valid Signature");
+            } else {
+                MessageBox.Show("Invalid Sig");
+            }
             /*
             //SignedXml signedPartOfXML = SignXml1(GetEntryXmlDoc(response), cert);
             String fileLocation = AppDomain.CurrentDomain.BaseDirectory + "signed.xml";
@@ -151,7 +169,7 @@ namespace XMLSigner
         private static XmlDocument SignXml(XmlDocument xmlDoc, X509Certificate2 certificate)
         {
             //https://stackoverflow.com/questions/23394654/signing-a-xml-document-with-x509-certificate
-            //xmlDoc.PreserveWhitespace = true;
+            //xmlDoc.PreserveWhitespace = false;
 
             RSA key = certificate.GetRSAPrivateKey();
             // Check arguments.
