@@ -61,11 +61,20 @@ namespace XMLSigner.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to http://localhost:8080/xml.
+        ///   Looks up a localized string similar to http://localhost:8080/file.
         /// </summary>
         internal static string ApiUrl {
             get {
                 return ResourceManager.GetString("ApiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to time.windows.com.
+        /// </summary>
+        internal static string NtpServerUrl {
+            get {
+                return ResourceManager.GetString("NtpServerUrl", resourceCulture);
             }
         }
     }
