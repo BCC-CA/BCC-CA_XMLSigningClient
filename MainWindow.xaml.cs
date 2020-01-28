@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Windows;
 using System.Xml;
+using DataObject = System.Security.Cryptography.Xml.DataObject;
 
 namespace XMLSigner
 {
@@ -42,7 +43,6 @@ namespace XMLSigner
             xmlDoc.PreserveWhitespace = false;/////////////////////////////////
             xmlDoc.Load(fileName);
             X509Certificate2 cert = GetX509Certificate2();
-            MessageBox.Show(cert.Verify().ToString());
             GetSignedXMLDocument(xmlDoc, cert).Save(fileName + "_signed.xml");
 
             //Verify
@@ -91,20 +91,12 @@ namespace XMLSigner
         //tutorial - https://www.asptricks.net/2015/09/sign-xmldocument-with-x509certificate2.html
         private XmlDocument GetSignedXMLDocument(XmlDocument xmlDocument, X509Certificate2 certificate)
         {
-            //Check certificate velidity from server and certificate varification here first
+            //Check certificate velidity from server and certificate varification here first - not implemented yet
 
             //Then sign the xml
             try
             {
                 //MessageBox.Show(certificate.Subject);
-
-                /*// Sign the XML document. 
-                string signedXmldata = SignXmlWithCertificate(xmlDocument, certificate);
-
-                //write signed xml in to file
-                File.WriteAllText("D:\\signedxml.xml", signedXmldata);*/
-
-                /////////////////////
                 SignedXml signedXml = new SignedXml(xmlDocument);
                 signedXml.SigningKey = certificate.PrivateKey;
 
@@ -113,8 +105,7 @@ namespace XMLSigner
                 reference.Uri = "";
 
                 // Add an enveloped transformation to the reference.            
-                XmlDsigEnvelopedSignatureTransform env =
-                    new XmlDsigEnvelopedSignatureTransform(true);
+                XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform(true);
                 reference.AddTransform(env);
 
                 //canonicalize
@@ -127,19 +118,22 @@ namespace XMLSigner
                 //kin.Value = "Public key of certificate";
                 kin.Value = certificate.FriendlyName;
 
-                //RSACryptoServiceProvider rsaprovider = (RSACryptoServiceProvider)certificate.PublicKey.Key;
-                //RSAKeyValue rkv = new RSAKeyValue(rsaprovider);
                 RSA rsa = (RSA)certificate.PublicKey.Key;
                 RSAKeyValue rkv = new RSAKeyValue(rsa);
                 keyInfo.AddClause(rkv);
 
                 keyInfo.AddClause(kin);
                 keyInfo.AddClause(keyInfoData);
-                //signedXml.KeyInfo = keyInfo;
+                signedXml.KeyInfo = keyInfo;
 
                 // Add the reference to the SignedXml object.
                 signedXml.AddReference(reference);
 
+                //////////////////////////////////////////Add Other Data as we need////
+                // Add the data object to the signature.
+                //CreateMetaDataObject("Name", GetNetworkTime());
+                signedXml.AddObject(CreateMetaDataObject("Name", GetNetworkTime()));
+                ///////////////////////////////////////////////////////////////////////
                 // Compute the signature.
                 signedXml.ComputeSignature();
 
@@ -151,12 +145,31 @@ namespace XMLSigner
                         xmlDocument.ImportNode(xmlDigitalSignature, true)
                     );
                 /////////////////////
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 throw exception;
             }
             return xmlDocument;
+        }
+
+        private DataObject CreateMetaDataObject(string signerUniqueId, DateTime signingTimeFromServer)
+        {
+            DataObject dataObject = new DataObject();
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlNode root = xmlDoc.AppendChild(xmlDoc.CreateElement("meta", "meta-data"));
+
+            XmlNode child1 = root.AppendChild(xmlDoc.CreateElement("unique", "unique-id"));
+            XmlAttribute childAtt1 = child1.Attributes.Append(xmlDoc.CreateAttribute("server-unique"));
+            childAtt1.InnerText = signerUniqueId;
+            child1.InnerText = signerUniqueId + " - test";
+
+            XmlNode child2 = root.AppendChild(xmlDoc.CreateElement("time", "signing-time"));
+            XmlAttribute childAtt2 = child2.Attributes.Append(xmlDoc.CreateAttribute("local"));
+            childAtt2.InnerText = DateTime.UtcNow.ToString();
+            child2.InnerText = signingTimeFromServer.ToString();
+
+            dataObject.Data = xmlDoc.ChildNodes;
+            dataObject.Id = "MyObjectId";
+            return dataObject;
         }
 
         private X509Certificate2 GetX509Certificate2()
@@ -171,12 +184,12 @@ namespace XMLSigner
         public static DateTime GetNetworkTime()
         {
             //Should check time server by certificate, not added now
-            var ntpData = new byte[48];
+            byte[] ntpData = new byte[48];
             ntpData[0] = 0x1B; //LeapIndicator = 0 (no warning), VersionNum = 3 (IPv4 only), Mode = 3 (Client Mode)
 
-            var addresses = Dns.GetHostEntry(Properties.Resources.NtpServerUrl).AddressList;
-            var ipEndPoint = new IPEndPoint(addresses[0], 123);
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            IPAddress[] addresses = Dns.GetHostEntry(Properties.Resources.NtpServerUrl).AddressList;
+            IPEndPoint ipEndPoint = new IPEndPoint(addresses[0], 123);
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             socket.Connect(ipEndPoint);
             socket.Send(ntpData);
@@ -186,8 +199,8 @@ namespace XMLSigner
             ulong intPart = (ulong)ntpData[40] << 24 | (ulong)ntpData[41] << 16 | (ulong)ntpData[42] << 8 | (ulong)ntpData[43];
             ulong fractPart = (ulong)ntpData[44] << 24 | (ulong)ntpData[45] << 16 | (ulong)ntpData[46] << 8 | (ulong)ntpData[47];
 
-            var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
-            var networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
+            ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+            DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
 
             return networkDateTime;
         }
