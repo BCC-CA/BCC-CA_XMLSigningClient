@@ -3,6 +3,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Xml;
+using XMLSigner.Library;
 
 namespace XMLSigner
 {
@@ -34,18 +35,29 @@ namespace XMLSigner
             String fileName = SelectedFileName.Text.Trim();
 
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.PreserveWhitespace = false;/////////////////////////////////
+            //xmlDoc.PreserveWhitespace = false;/////////////////////////////////Should do it in both sign and verify
             xmlDoc.Load(fileName);
 
-            X509Certificate2 cert = XmlSignWithAspFunction.GetX509Certificate2();
-            XmlSignWithAspFunction.GetSignedXMLDocument(xmlDoc, cert).Save(fileName + "_signed.xml");
+            X509Certificate2 cert = XmlSign.GetX509Certificate2FromDongle();   //Load Certificate
+            XmlDocument signedDoc = XmlSign.GetSignedXMLDocument(xmlDoc, cert);
+            if(signedDoc!=null) {
+                signedDoc.Save(fileName + "_signed.xml");   //Sign a file
+            } else {
+                MessageBox.Show("File Tempered After Last Sign");
+            }
+
+            XmlDocument signedXmlDoc = new XmlDocument();
+            //xmlDoc.PreserveWhitespace = false;/////////////////////////////////
+            signedXmlDoc.Load(fileName + "_signed.xml");
 
             //Verify
-            bool result = XmlSignWithAspFunction.VerifyXmlFileWithoutCertificateVerification(fileName + "_signed.xml", cert);
-            if(result) {
+            bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmlDoc);
+            if(ifSignVerified == true) {
                 MessageBox.Show("Verified");
-            } else {
+            } else if(ifSignVerified == false) {
                 MessageBox.Show("Failed Verification");
+            } else {
+                MessageBox.Show("File Has No Sign");
             }
         }
     }

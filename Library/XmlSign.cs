@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -7,25 +8,69 @@ using System.Security.Cryptography.Xml;
 using System.Xml;
 using DataObject = System.Security.Cryptography.Xml.DataObject;
 
-namespace XMLSigner
+namespace XMLSigner.Library
 {
-    class XmlSignWithAspFunction
+    class XmlSign
     {
-        public static bool VerifyXmlFileWithoutCertificateVerification(String fileName, X509Certificate2 certificate)
+        public static bool CheckIfDocumentPreviouslySigned(XmlDocument xmlDocument)
         {
-            try
-            {
-                // Create a new XML document.
-                XmlDocument xmlDocument = new XmlDocument();
+            int signCount = DocumentSignCount(xmlDocument);
+            if (signCount > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 
-                // Format using white spaces.
-                xmlDocument.PreserveWhitespace = false;
+        public static int DocumentSignCount(XmlDocument xmlDocument)
+        {
+            XmlNodeList nodeList = xmlDocument.GetElementsByTagName("Signature");
+            return nodeList.Count;
+        }
 
-                // Load the passed XML file into the document. 
-                xmlDocument.Load(fileName);
+        public static bool? VerifyAllSign(XmlDocument xmlDocument)
+        {
+            if (!CheckIfDocumentPreviouslySigned(xmlDocument))
+                return null;    //File has no sign
+            while(CheckIfDocumentPreviouslySigned(xmlDocument)) {
+                bool? lastSignVerificationStatus = VerifyLastSign(xmlDocument);
+                if (lastSignVerificationStatus == false) {
+                    return false;   //Not counting all sign, find first invalid sign and tell that file is invalid
+                }
+                //Update xmlDocument by removing last sign tag
+                xmlDocument = RemoveLastSign(xmlDocument);
+            }
+            return true;
+        }
 
+        private static XmlDocument RemoveLastSign(XmlDocument xmlDocument)
+        {
+            //nodes[i].ParentNode.RemoveChild(nodes[i]);
+            XmlNodeList signList = xmlDocument.GetElementsByTagName("Signature");
+            int indexToRemove = signList.Count - 1;
+            signList[indexToRemove].ParentNode.RemoveChild(signList[indexToRemove]);
+            return xmlDocument;
+        }
+
+        public static bool? VerifyLastSign(XmlDocument xmlDocument)
+        {
+            if (!CheckIfDocumentPreviouslySigned(xmlDocument)) {
+                return null;    //File has no sign
+            }
+            if (VerifySignedXmlLastSignWithoutCertificateVerification(xmlDocument)) {
+                //return VerifyMetaDataObjectSignature(xmlDocument);
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        //Should get data from XmlDocument, not file
+        private static bool VerifySignedXmlLastSignWithoutCertificateVerification(XmlDocument xmlDocument)
+        {
+            try {
                 // Create a new SignedXml object and pass it
-                // the XML document class.
                 SignedXml signedXml = new SignedXml(xmlDocument);
 
                 // Find the "Signature" node and create a new
@@ -33,23 +78,36 @@ namespace XMLSigner
                 XmlNodeList nodeList = xmlDocument.GetElementsByTagName("Signature");
 
                 // Load the signature node.
-                signedXml.LoadXml((XmlElement)nodeList[0]);
+                signedXml.LoadXml((XmlElement)nodeList[nodeList.Count-1]);
 
-                // Check the signature and return the result.
-                return signedXml.CheckSignature(certificate, true);
-            }
-            catch (Exception exc)
-            {
-                Console.Write("Error:" + exc);
-                return false;
+                AsymmetricAlgorithm key;
+                var a = signedXml.CheckSignatureReturningKey(out key);
+                return a;
+                //return signedXml.CheckSignature(key);
+                //return signedXml.CheckSignature(certificate, true);
+            } catch (Exception exception) {
+                Console.Write("Error: " + exception);
+                throw exception;
             }
         }
 
         //tutorial - https://www.asptricks.net/2015/09/sign-xmldocument-with-x509certificate2.html
         public static XmlDocument GetSignedXMLDocument(XmlDocument xmlDocument, X509Certificate2 certificate)
         {
+            /*
             //Check certificate velidity from server and certificate varification here first - not implemented yet
-
+            if(!certificate.Verify()) {
+                return null;    //Certificate Not Verified
+            }
+            */
+            //Before signing, should check if current document sign is valid or not, if current document is invalid, then new sign should not be added - not implemented yet, but should be
+            if(CheckIfDocumentPreviouslySigned(xmlDocument)) {
+                bool? isLastSignVerified = VerifyLastSign(xmlDocument);
+                if (isLastSignVerified == false) {
+                    Console.WriteLine("File Tempered after last sign !!");
+                    return null;    //Last Sign Not Verified
+                }
+            }
             //Then sign the xml
             try
             {
@@ -89,7 +147,7 @@ namespace XMLSigner
                 //////////////////////////////////////////Add Other Data as we need////
                 // Add the data object to the signature.
                 //CreateMetaDataObject("Name", GetNetworkTime());
-                signedXml.AddObject(CreateMetaDataObject("Name", GetNetworkTime()));
+                signedXml.AddObject(CreateMetaDataObject(certificate, GetNetworkTime()));
                 ///////////////////////////////////////////////////////////////////////
                 // Compute the signature.
                 signedXml.ComputeSignature();
@@ -102,36 +160,40 @@ namespace XMLSigner
                         xmlDocument.ImportNode(xmlDigitalSignature, true)
                     );
                 /////////////////////
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 throw exception;
             }
             return xmlDocument;
         }
 
-        public static DataObject CreateMetaDataObject(string signerUniqueId, DateTime signingTimeFromServer)
+        public static DataObject CreateMetaDataObject(X509Certificate2 certificate, DateTime signingTimeFromServer)
         {
+            //Should add a sign with it also so that it can be proven that data is not tempered and should add verifire for it also
             DataObject dataObject = new DataObject();
             XmlDocument xmlDoc = new XmlDocument();
             XmlNode root = xmlDoc.AppendChild(xmlDoc.CreateElement("meta", "meta-data"));
 
             XmlNode child1 = root.AppendChild(xmlDoc.CreateElement("unique", "unique-id"));
             XmlAttribute childAtt1 = child1.Attributes.Append(xmlDoc.CreateAttribute("server-unique"));
-            childAtt1.InnerText = signerUniqueId;
-            child1.InnerText = signerUniqueId + " - test";
+            childAtt1.InnerText = certificate.Thumbprint.ToString();
+            child1.InnerText = certificate.Subject.ToString();
 
             XmlNode child2 = root.AppendChild(xmlDoc.CreateElement("time", "signing-time"));
             XmlAttribute childAtt2 = child2.Attributes.Append(xmlDoc.CreateAttribute("local"));
-            childAtt2.InnerText = DateTime.UtcNow.ToString();
-            child2.InnerText = signingTimeFromServer.ToString();
+            childAtt2.InnerText = DateTime.Now.ToString();          //Local Time
+            child2.InnerText = signingTimeFromServer.ToString();    //Server Time
 
             dataObject.Data = xmlDoc.ChildNodes;
-            dataObject.Id = "MyObjectId";
+            dataObject.Id = certificate.SerialNumber.ToString();
             return dataObject;
         }
 
-        public static X509Certificate2 GetX509Certificate2()
+        private static bool VerifyMetaDataObjectSignature(XmlDocument xmlDocument)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static X509Certificate2 GetX509Certificate2FromDongle()
         {
             X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
