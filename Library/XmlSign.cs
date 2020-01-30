@@ -81,14 +81,26 @@ namespace XMLSigner.Library
                 signedXml.LoadXml((XmlElement)nodeList[nodeList.Count-1]);
 
                 AsymmetricAlgorithm key;
-                var a = signedXml.CheckSignatureReturningKey(out key);
-                return a;
+                bool signatureCheckStatus = signedXml.CheckSignatureReturningKey(out key);
+                if(signatureCheckStatus) {
+                    var metaElement = (XmlElement)nodeList[nodeList.Count - 1].LastChild;
+                    return VerifyMetaDataObjectSignature(metaElement, key);
+                    return true;
+                } else {
+                    return false;
+                }
                 //return signedXml.CheckSignature(key);
                 //return signedXml.CheckSignature(certificate, true);
             } catch (Exception exception) {
                 Console.Write("Error: " + exception);
                 throw exception;
             }
+        }
+
+        private static bool VerifyMetaDataObjectSignature(XmlElement metaXmlElement, AsymmetricAlgorithm ExtractedKey)
+        {
+            return true;
+            throw new NotImplementedException();
         }
 
         //tutorial - https://www.asptricks.net/2015/09/sign-xmldocument-with-x509certificate2.html
@@ -168,6 +180,7 @@ namespace XMLSigner.Library
 
         public static DataObject CreateMetaDataObject(X509Certificate2 certificate, DateTime signingTimeFromServer)
         {
+            //https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.import?view=netframework-4.8
             //Should add a sign with it also so that it can be proven that data is not tempered and should add verifire for it also
             DataObject dataObject = new DataObject();
             XmlDocument xmlDoc = new XmlDocument();
@@ -183,14 +196,46 @@ namespace XMLSigner.Library
             childAtt2.InnerText = DateTime.Now.ToString();          //Local Time
             child2.InnerText = signingTimeFromServer.ToString();    //Server Time
 
+            //Sign Meta Data and store without key
+            //xmlDoc = GetSignedMetaData(xmlDoc, certificate);
+
             dataObject.Data = xmlDoc.ChildNodes;
             dataObject.Id = certificate.SerialNumber.ToString();
             return dataObject;
         }
 
-        private static bool VerifyMetaDataObjectSignature(XmlDocument xmlDocument)
+        private static XmlDocument GetSignedMetaData(XmlDocument xmlDocument, X509Certificate2 certificate)
         {
-            throw new NotImplementedException();
+            SignedXml signedXml = new SignedXml(xmlDocument);
+            signedXml.SigningKey = certificate.PrivateKey;
+
+            // Create a reference to be signed.
+            Reference reference = new Reference();
+            reference.Uri = "";
+
+            // Add an enveloped transformation to the reference.            
+            XmlDsigEnvelopedSignatureTransform env =
+               new XmlDsigEnvelopedSignatureTransform(true);
+            reference.AddTransform(env);
+
+            //canonicalize
+            XmlDsigC14NTransform c14t = new XmlDsigC14NTransform();
+            reference.AddTransform(c14t);
+
+            // Add the reference to the SignedXml object.
+            signedXml.AddReference(reference);
+
+            // Compute the signature.
+            signedXml.ComputeSignature();
+
+            // Get the XML representation of the signature and save 
+            // it to an XmlElement object.
+            XmlElement xmlDigitalSignature = signedXml.GetXml();
+
+            xmlDocument.DocumentElement.AppendChild(
+                xmlDocument.ImportNode(xmlDigitalSignature, true));
+
+            return xmlDocument;
         }
 
         public static X509Certificate2 GetX509Certificate2FromDongle()

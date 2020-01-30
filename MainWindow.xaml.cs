@@ -44,6 +44,7 @@ namespace XMLSigner
                 signedDoc.Save(fileName + "_signed.xml");   //Sign a file
             } else {
                 MessageBox.Show("File Tempered After Last Sign");
+                return;
             }
 
             XmlDocument signedXmlDoc = new XmlDocument();
