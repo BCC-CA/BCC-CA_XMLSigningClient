@@ -112,10 +112,19 @@ namespace XMLSigner.Library
                 return null;    //Certificate Not Verified
             }
             */
+
+            //Check if local time is OK
+            if(!CheckIfLocalTimeIsOk()) {
+                Console.WriteLine("PC Time is not updated !!");
+                return null;    //Last Sign Not Verified
+            }
+
             //Before signing, should check if current document sign is valid or not, if current document is invalid, then new sign should not be added - not implemented yet, but should be
-            if(CheckIfDocumentPreviouslySigned(xmlDocument)) {
+            if (CheckIfDocumentPreviouslySigned(xmlDocument))
+            {
                 bool? isLastSignVerified = VerifyLastSign(xmlDocument);
-                if (isLastSignVerified == false) {
+                if (isLastSignVerified == false)
+                {
                     Console.WriteLine("File Tempered after last sign !!");
                     return null;    //Last Sign Not Verified
                 }
@@ -269,6 +278,17 @@ namespace XMLSigner.Library
             DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
 
             return networkDateTime;
+        }
+
+        public static bool CheckIfLocalTimeIsOk(int allowedMaxMinuiteDiff = 5)
+        {
+            DateTime ntpTime = GetNetworkTime();
+            DateTime localTime = DateTime.UtcNow;
+            TimeSpan timeDiff = ntpTime - localTime;
+            if (Math.Abs(timeDiff.TotalMinutes) <= allowedMaxMinuiteDiff)
+                return true;
+            else
+                return false;
         }
     }
 }
