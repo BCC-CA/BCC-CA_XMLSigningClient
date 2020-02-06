@@ -1,10 +1,13 @@
-﻿using System;
-using System.IO;
+﻿using RestSharp;
+using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
+using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using DataObject = System.Security.Cryptography.Xml.DataObject;
 
@@ -12,6 +15,65 @@ namespace XMLSigner.Library
 {
     class XmlSign
     {
+        [Obsolete]
+        public static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(long fileId)
+        {
+            RestClient client = new RestClient(Properties.Resources.ApiUrl);
+            RestRequest request = new RestRequest(fileId.ToString(), Method.GET);
+            IRestResponse response = await client.ExecuteTaskAsync(request);
+
+            if(response.StatusCode == HttpStatusCode.OK)
+            {
+                string description = response.Headers.ToList()
+                                .Find(x => x.Name == "Content-Disposition")
+                                .Value.ToString();
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(response.Content);
+                string fileNameContainerString = description.Split(";").ToList()
+                                                    .Find(x => x.Contains("filename="))
+                                                    .Split("=").ToList()
+                                                    .Find(x => !x.Contains("filename"))
+                                                    .Trim();
+                return new Tuple<XmlDocument, string>(doc, fileNameContainerString);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        [Obsolete]
+        public static async Task<long?> UploadFileAsync(Tuple<XmlDocument, string> uploadFileToupleData, long? previousSignedFileId = null)
+        {
+            XmlDocument xmlDocument = uploadFileToupleData.Item1;
+            string uploadFileName = uploadFileToupleData.Item2;
+
+            RestClient client = new RestClient(Properties.Resources.ApiUrl);
+            RestRequest uploadRequest = new RestRequest("", Method.POST);
+            if(previousSignedFileId != null)
+            {
+                uploadRequest.AddParameter("previousFileId", previousSignedFileId);
+            }
+            //uploadRequest.AddParameter("file", "upload file");
+            //uploadRequest.AddFile("file", fileLocation);
+            //uploadRequest.AddFile("file", s => StreamUtils.CopyStream(fileStream, s), filename);
+            //request.AddFile("file", File.ReadAllBytes(path), Path.GetFileName(path), "multipart/form-data");
+            //request.AddFile("deployfile", (s) => { depfile.CopyTo(s); }, filename);
+            uploadRequest.AddFile("xmlFile", Encoding.UTF8.GetBytes(uploadFileToupleData.Item1.OuterXml), uploadFileToupleData.Item2);
+
+            //uploadRequest.AddFile("file", Encoding.UTF8.GetBytes(uploadFileToupleData.Item1.OuterXml), uploadFileToupleData.Item2, "multipart/form-data")
+
+            IRestResponse uploadResponse = await client.ExecutePostTaskAsync(uploadRequest);
+            if (uploadResponse.StatusCode.CompareTo(HttpStatusCode.OK) == 0)
+            {
+                return long.Parse(uploadResponse.Content);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public static bool CheckIfDocumentPreviouslySigned(XmlDocument xmlDocument)
         {
             int signCount = DocumentSignCount(xmlDocument);

@@ -61,7 +61,7 @@ namespace XMLSigner.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to http://localhost:8080/file.
+        ///   Looks up a localized string similar to https://localhost:44361/api/XmlFiles/.
         /// </summary>
         internal static string ApiUrl {
             get {

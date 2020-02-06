@@ -19,8 +19,19 @@ namespace XMLSigner
             InitializeComponent();
         }
 
+        [Obsolete]
+        private async System.Threading.Tasks.Task TryFunctionAsync(long b)
+        {
+            var a = await XmlSign.DownloadFileWithIdAsync(b);
+            var c = await XmlSign.UploadFileAsync(a);
+            if (c != null)
+                MessageBox.Show("Downloaded");
+        }
+
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
         {
+            TryFunctionAsync(long.Parse(SelectedFileName.Text));
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
