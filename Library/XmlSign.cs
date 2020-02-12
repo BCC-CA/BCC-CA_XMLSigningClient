@@ -16,7 +16,7 @@ namespace XMLSigner.Library
     class XmlSign
     {
         [Obsolete]
-        public static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(long fileId)
+        internal static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(long fileId)
         {
             RestClient client = new RestClient(Properties.Resources.ApiUrl);
             RestRequest request = new RestRequest(fileId.ToString(), Method.GET);
@@ -43,7 +43,7 @@ namespace XMLSigner.Library
         }
 
         [Obsolete]
-        public static async Task<long?> UploadFileAsync(Tuple<XmlDocument, string> uploadFileToupleData, long? previousSignedFileId = null)
+        internal static async Task<long?> UploadFileAsync(Tuple<XmlDocument, string> uploadFileToupleData, long? previousSignedFileId = null)
         {
             XmlDocument xmlDocument = uploadFileToupleData.Item1;
             string uploadFileName = uploadFileToupleData.Item2;
@@ -74,7 +74,7 @@ namespace XMLSigner.Library
             }
         }
 
-        public static bool CheckIfDocumentPreviouslySigned(XmlDocument xmlDocument)
+        private static bool CheckIfDocumentPreviouslySigned(XmlDocument xmlDocument)
         {
             int signCount = DocumentSignCount(xmlDocument);
             if (signCount > 0) {
@@ -90,7 +90,7 @@ namespace XMLSigner.Library
             return nodeList.Count;
         }
 
-        public static bool? VerifyAllSign(XmlDocument xmlDocument)
+        internal static bool? VerifyAllSign(XmlDocument xmlDocument)
         {
             if (!CheckIfDocumentPreviouslySigned(xmlDocument))
                 return null;    //File has no sign
@@ -114,7 +114,7 @@ namespace XMLSigner.Library
             return xmlDocument;
         }
 
-        public static bool? VerifyLastSign(XmlDocument xmlDocument)
+        private static bool? VerifyLastSign(XmlDocument xmlDocument)
         {
             if (!CheckIfDocumentPreviouslySigned(xmlDocument)) {
                 return null;    //File has no sign
@@ -142,12 +142,15 @@ namespace XMLSigner.Library
                 // Load the signature node.
                 signedXml.LoadXml((XmlElement)nodeList[nodeList.Count-1]);
 
+                //////////////////////////////////Extract key - Start
+                X509Certificate2 x509 = GetLastSignerCertificate(xmlDocument);
+                //////////////////////////////////Extract key - End
+
                 AsymmetricAlgorithm key;
                 bool signatureCheckStatus = signedXml.CheckSignatureReturningKey(out key);
                 if(signatureCheckStatus) {
-                    var metaElement = (XmlElement)nodeList[nodeList.Count - 1].LastChild;
+                    XmlElement metaElement = (XmlElement)nodeList[nodeList.Count - 1].LastChild;
                     return VerifyMetaDataObjectSignature(metaElement, key);
-                    return true;
                 } else {
                     return false;
                 }
@@ -159,6 +162,26 @@ namespace XMLSigner.Library
             }
         }
 
+        private static X509Certificate2 GetLastSignerCertificate(XmlDocument xmlDocument)
+        {
+            if (!CheckIfDocumentPreviouslySigned(xmlDocument))
+            {
+                return null;
+            }
+            XmlDocument document = new XmlDocument();
+
+            // Find the "Signature" node and create a new
+            // XmlNodeList object.
+            XmlNodeList nodeList = xmlDocument.GetElementsByTagName("Signature");
+
+            // Load the signature node.
+
+            document.LoadXml(((XmlElement)nodeList[nodeList.Count - 1]).OuterXml);
+            string certString = document.GetElementsByTagName("X509Data")[0].InnerText;
+            /*...Decode text in cert here (may need to use Encoding, Base64, UrlEncode, etc) ending with 'data' being a byte array...*/
+            return new X509Certificate2(Encoding.ASCII.GetBytes(certString));
+        }
+
         private static bool VerifyMetaDataObjectSignature(XmlElement metaXmlElement, AsymmetricAlgorithm ExtractedKey)
         {
             return true;
@@ -166,7 +189,7 @@ namespace XMLSigner.Library
         }
 
         //tutorial - https://www.asptricks.net/2015/09/sign-xmldocument-with-x509certificate2.html
-        public static XmlDocument GetSignedXMLDocument(XmlDocument xmlDocument, X509Certificate2 certificate)
+        internal static XmlDocument GetSignedXMLDocument(XmlDocument xmlDocument, X509Certificate2 certificate)
         {
             /*
             //Check certificate velidity from server and certificate varification here first - not implemented yet
@@ -249,7 +272,7 @@ namespace XMLSigner.Library
             return xmlDocument;
         }
 
-        public static DataObject CreateMetaDataObject(X509Certificate2 certificate, DateTime signingTimeFromServer)
+        private static DataObject CreateMetaDataObject(X509Certificate2 certificate, DateTime signingTimeFromServer)
         {
             //https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.import?view=netframework-4.8
             //Should add a sign with it also so that it can be proven that data is not tempered and should add verifire for it also
@@ -309,7 +332,7 @@ namespace XMLSigner.Library
             return xmlDocument;
         }
 
-        public static X509Certificate2 GetX509Certificate2FromDongle()
+        internal static X509Certificate2 GetX509Certificate2FromDongle()
         {
             X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
@@ -318,7 +341,7 @@ namespace XMLSigner.Library
             return selectedCert[0];
         }
 
-        public static DateTime GetNetworkTime()
+        private static DateTime GetNetworkTime()
         {
             //Should check time server by certificate, not added now
             byte[] ntpData = new byte[48];
@@ -342,7 +365,7 @@ namespace XMLSigner.Library
             return networkDateTime;
         }
 
-        public static bool CheckIfLocalTimeIsOk(int allowedMaxMinuiteDiff = 5)
+        private static bool CheckIfLocalTimeIsOk(int allowedMaxMinuiteDiff = 5)
         {
             DateTime ntpTime = GetNetworkTime();
             DateTime localTime = DateTime.UtcNow;

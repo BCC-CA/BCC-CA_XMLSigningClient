@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using XMLSigner.Library;
@@ -20,24 +21,51 @@ namespace XMLSigner
         }
 
         [Obsolete]
-        private async System.Threading.Tasks.Task TryFunctionAsync(long b)
+        private async Task TryFunctionAsync(long signingId)
         {
-            var a = await XmlSign.DownloadFileWithIdAsync(b);
-            var c = await XmlSign.UploadFileAsync(a);
+            Tuple<XmlDocument, string> downloadedFile = await XmlSign.DownloadFileWithIdAsync(signingId);
+            XmlDocument signedXmldDoc = XmlSign.GetSignedXMLDocument(downloadedFile.Item1, XmlSign.GetX509Certificate2FromDongle());
+            Tuple<XmlDocument, string> uploadFile = new Tuple<XmlDocument, string>(signedXmldDoc,downloadedFile.Item2);
+            long? c = await XmlSign.UploadFileAsync(uploadFile);
+
             if (c != null)
-                MessageBox.Show("Downloaded");
+            {
+                MessageBox.Show("Uploaded with ID- " + c);
+            }
+
+            //Verify
+            bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmldDoc);
+            if (ifSignVerified == true)
+            {
+                MessageBox.Show("Verified");
+            }
+            else if (ifSignVerified == false)
+            {
+                MessageBox.Show("Failed Verification");
+            }
+            else
+            {
+                MessageBox.Show("File Has No Sign");
+            }
         }
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
         {
+            if (Environment.GetCommandLineArgs().Length > 1)    //Because 0 index is app runing location
+            {
+                //Do not Open WPF UI, Instead do manipulate based
+                //on the arguments passed in
+                string[] arguments = Environment.GetCommandLineArgs();
+                MessageBox.Show("CMD Param: \n\n" + arguments[1]);
+            }
             TryFunctionAsync(long.Parse(SelectedFileName.Text));
 
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            /*OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
                 //ServerFileName.Text = File.ReadAllText(openFileDialog.FileName);
                 SelectedFileName.Text = openFileDialog.FileName;
-            }
+            }*/
         }
 
         private void SignButtonClicked(object sender, RoutedEventArgs e)
