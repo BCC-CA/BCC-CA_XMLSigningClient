@@ -1,7 +1,6 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
+using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using XMLSigner.Library;
@@ -13,41 +12,13 @@ namespace XMLSigner
     /// </summary>
     public partial class MainWindow : Window
     {
-        //private static readonly String baseUrl = Properties.Resources.ApiUrl;
-
         public MainWindow()
         {
+            //ActivateNotifyIcon();
             InitializeComponent();
+            this.Hide();
         }
 
-        [Obsolete]
-        private async Task TryFunctionAsync(long signingId)
-        {
-            Tuple<XmlDocument, string> downloadedFile = await XmlSign.DownloadFileWithIdAsync(signingId);
-            XmlDocument signedXmldDoc = XmlSign.GetSignedXMLDocument(downloadedFile.Item1, XmlSign.GetX509Certificate2FromDongle());
-            Tuple<XmlDocument, string> uploadFile = new Tuple<XmlDocument, string>(signedXmldDoc,downloadedFile.Item2);
-            long? c = await XmlSign.UploadFileAsync(uploadFile);
-
-            if (c != null)
-            {
-                MessageBox.Show("Uploaded with ID- " + c);
-            }
-
-            //Verify
-            bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmldDoc);
-            if (ifSignVerified == true)
-            {
-                MessageBox.Show("Verified");
-            }
-            else if (ifSignVerified == false)
-            {
-                MessageBox.Show("Failed Verification");
-            }
-            else
-            {
-                MessageBox.Show("File Has No Sign");
-            }
-        }
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
         {
@@ -58,14 +29,16 @@ namespace XMLSigner
                 string[] arguments = Environment.GetCommandLineArgs();
                 MessageBox.Show("CMD Param: \n\n" + arguments[1]);
             }
-            TryFunctionAsync(long.Parse(SelectedFileName.Text));
+            //TryFunctionAsync(long.Parse(SelectedFileName.Text));
 
-            /*OpenFileDialog openFileDialog = new OpenFileDialog();
+            /*
+            OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
                 //ServerFileName.Text = File.ReadAllText(openFileDialog.FileName);
                 SelectedFileName.Text = openFileDialog.FileName;
-            }*/
+            }
+            */
         }
 
         private void SignButtonClicked(object sender, RoutedEventArgs e)
@@ -98,6 +71,24 @@ namespace XMLSigner
                 MessageBox.Show("Failed Verification");
             } else {
                 MessageBox.Show("File Has No Sign");
+            }
+        }
+
+        private void CloseWindowButton_Click(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            //ActivateNotifyIcon();
+        }
+
+        private void FormStateChanged(object sender, EventArgs e)
+        {
+            if(this.WindowState == WindowState.Minimized)
+            {
+                //ActivateNotifyIcon();
+            }
+            else if(this.WindowState == WindowState.Normal)
+            {
+                //DeactivateNotifyIcon();
             }
         }
     }

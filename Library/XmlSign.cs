@@ -1,5 +1,7 @@
 ﻿using RestSharp;
 using System;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -15,11 +17,19 @@ namespace XMLSigner.Library
 {
     class XmlSign
     {
-        [Obsolete]
-        internal static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(long fileId)
+        internal static Icon BytesToIcon(byte[] bytes)
         {
-            RestClient client = new RestClient(Properties.Resources.ApiUrl);
-            RestRequest request = new RestRequest(fileId.ToString(), Method.GET);
+            using (MemoryStream ms = new MemoryStream(bytes))
+            {
+                return new Icon(ms);
+            }
+        }
+
+        [Obsolete]
+        internal static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(string downloadUrl)
+        {
+            RestClient client = new RestClient(downloadUrl);
+            RestRequest request = new RestRequest(Method.GET);
             IRestResponse response = await client.ExecuteTaskAsync(request);
 
             if(response.StatusCode == HttpStatusCode.OK)
@@ -43,25 +53,19 @@ namespace XMLSigner.Library
         }
 
         [Obsolete]
-        internal static async Task<long?> UploadFileAsync(Tuple<XmlDocument, string> uploadFileToupleData, long? previousSignedFileId = null)
+        internal static async Task<long?> UploadFileAsync(Tuple<XmlDocument, string> uploadFileToupleData, string token, long? previousSignedFileId, string uploadUrl)
         {
             XmlDocument xmlDocument = uploadFileToupleData.Item1;
             string uploadFileName = uploadFileToupleData.Item2;
 
-            RestClient client = new RestClient(Properties.Resources.ApiUrl);
+            RestClient client = new RestClient(uploadUrl);
             RestRequest uploadRequest = new RestRequest("", Method.POST);
             if(previousSignedFileId != null)
             {
                 uploadRequest.AddParameter("previousFileId", previousSignedFileId);
+                uploadRequest.AddParameter("token", token);
             }
-            //uploadRequest.AddParameter("file", "upload file");
-            //uploadRequest.AddFile("file", fileLocation);
-            //uploadRequest.AddFile("file", s => StreamUtils.CopyStream(fileStream, s), filename);
-            //request.AddFile("file", File.ReadAllBytes(path), Path.GetFileName(path), "multipart/form-data");
-            //request.AddFile("deployfile", (s) => { depfile.CopyTo(s); }, filename);
             uploadRequest.AddFile("xmlFile", Encoding.UTF8.GetBytes(uploadFileToupleData.Item1.OuterXml), uploadFileToupleData.Item2);
-
-            //uploadRequest.AddFile("file", Encoding.UTF8.GetBytes(uploadFileToupleData.Item1.OuterXml), uploadFileToupleData.Item2, "multipart/form-data")
 
             IRestResponse uploadResponse = await client.ExecutePostTaskAsync(uploadRequest);
             if (uploadResponse.StatusCode.CompareTo(HttpStatusCode.OK) == 0)
@@ -189,7 +193,7 @@ namespace XMLSigner.Library
         }
 
         //tutorial - https://www.asptricks.net/2015/09/sign-xmldocument-with-x509certificate2.html
-        internal static XmlDocument GetSignedXMLDocument(XmlDocument xmlDocument, X509Certificate2 certificate)
+        internal static XmlDocument GetSignedXMLDocument(XmlDocument xmlDocument, X509Certificate2 certificate, long procedureSerial = -1, string reason = "")
         {
             /*
             //Check certificate velidity from server and certificate varification here first - not implemented yet
@@ -223,11 +227,18 @@ namespace XMLSigner.Library
 
                 // Create a reference to be signed.
                 Reference reference = new Reference();
-                reference.Uri = "";
-
+                /////////////////////
+                reference.Uri = DateTime.UtcNow.ToString();
+                reference.Type = reason;
+                reference.Id = procedureSerial.ToString();
+                //reference.TransformChain = ;
+                /////////////////////
                 // Add an enveloped transformation to the reference.            
                 XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform(true);
                 reference.AddTransform(env);
+
+                // Add the reference to the SignedXml object.
+                signedXml.AddReference(reference);
 
                 //canonicalize
                 XmlDsigC14NTransform c14t = new XmlDsigC14NTransform();
@@ -246,9 +257,6 @@ namespace XMLSigner.Library
                 keyInfo.AddClause(kin);
                 keyInfo.AddClause(keyInfoData);
                 signedXml.KeyInfo = keyInfo;
-
-                // Add the reference to the SignedXml object.
-                signedXml.AddReference(reference);
 
                 //////////////////////////////////////////Add Other Data as we need////
                 // Add the data object to the signature.

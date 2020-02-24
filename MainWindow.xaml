@@ -5,6 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XMLSigner"
         mc:Ignorable="d"
+        xmlns:tb="http://www.hardcodet.net/taskbar" 
+        Closing="CloseWindowButton_Click"
+        StateChanged="FormStateChanged"
         Title="XML Signing" Height="70" Width="400">
     <Grid Height="35">
         <TextBox Name="SelectedFileName" HorizontalAlignment="Left" Margin="80,10,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="237"/>
