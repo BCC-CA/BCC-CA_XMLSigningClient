@@ -226,11 +226,12 @@ namespace XMLSigner.Library
                 SignedXml signedXml = new SignedXml(xmlDocument);
                 signedXml.SigningKey = certificate.PrivateKey;
 
-                // Create a reference to be signed.
+                // Create a reference to be signed
                 Reference reference = new Reference();
                 /////////////////////
                 reference.Uri = "";//"#" + procedureSerial;
                 //reference.Type = reason;
+                //reference.Id = DateTime.UtcNow.Ticks.ToString();
                 reference.Id = Base64EncodedCurrentTime();
                 //reference.TransformChain = ;
                 /////////////////////
