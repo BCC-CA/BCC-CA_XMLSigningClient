@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Xml;
 using DataObject = System.Security.Cryptography.Xml.DataObject;
 
@@ -204,7 +205,7 @@ namespace XMLSigner.Library
 
             //Check if local time is OK
             if(!CheckIfLocalTimeIsOk()) {
-                Console.WriteLine("PC Time is not updated !!");
+                MessageBox.Show("PC Time is not updated !!");
                 return null;    //Last Sign Not Verified
             }
 
@@ -214,7 +215,7 @@ namespace XMLSigner.Library
                 bool? isLastSignVerified = VerifyLastSign(xmlDocument);
                 if (isLastSignVerified == false)
                 {
-                    Console.WriteLine("File Tempered after last sign !!");
+                    MessageBox.Show("File Tempered after last sign !!");
                     return null;    //Last Sign Not Verified
                 }
             }
@@ -228,9 +229,9 @@ namespace XMLSigner.Library
                 // Create a reference to be signed.
                 Reference reference = new Reference();
                 /////////////////////
-                reference.Uri = DateTime.UtcNow.ToString();
-                reference.Type = reason;
-                reference.Id = procedureSerial.ToString();
+                reference.Uri = "";//"#" + procedureSerial;
+                //reference.Type = reason;
+                reference.Id = Base64EncodedCurrentTime();
                 //reference.TransformChain = ;
                 /////////////////////
                 // Add an enveloped transformation to the reference.            
@@ -261,7 +262,7 @@ namespace XMLSigner.Library
                 //////////////////////////////////////////Add Other Data as we need////
                 // Add the data object to the signature.
                 //CreateMetaDataObject("Name", GetNetworkTime());
-                signedXml.AddObject(CreateMetaDataObject(certificate, GetNetworkTime()));
+                signedXml.AddObject(CreateMetaDataObject(procedureSerial, reason));
                 ///////////////////////////////////////////////////////////////////////
                 // Compute the signature.
                 signedXml.ComputeSignature();
@@ -275,12 +276,25 @@ namespace XMLSigner.Library
                     );
                 /////////////////////
             } catch (Exception exception) {
+                MessageBox.Show("Internal System Error");
                 throw exception;
             }
             return xmlDocument;
         }
 
-        private static DataObject CreateMetaDataObject(X509Certificate2 certificate, DateTime signingTimeFromServer)
+        private static string Base64EncodedCurrentTime()
+        {
+            byte[] plainTextBytes = Encoding.UTF8.GetBytes(DateTime.UtcNow.ToString());
+            return Convert.ToBase64String(plainTextBytes);
+        }
+
+        private static DateTime Base64DecodTime(string encodedTimeString)
+        {
+            byte[] base64EncodedBytes = Convert.FromBase64String(encodedTimeString);
+            return DateTime.Parse(Encoding.UTF8.GetString(base64EncodedBytes));
+        }
+
+        private static DataObject CreateMetaDataObject(long uniqueId, string reason)
         {
             //https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.import?view=netframework-4.8
             //Should add a sign with it also so that it can be proven that data is not tempered and should add verifire for it also
@@ -290,19 +304,19 @@ namespace XMLSigner.Library
 
             XmlNode child1 = root.AppendChild(xmlDoc.CreateElement("unique", "unique-id"));
             XmlAttribute childAtt1 = child1.Attributes.Append(xmlDoc.CreateAttribute("server-unique"));
-            childAtt1.InnerText = certificate.Thumbprint.ToString();
-            child1.InnerText = certificate.Subject.ToString();
+            //childAtt1.InnerText = uniqueId.ToString();
+            child1.InnerText = uniqueId.ToString();
 
-            XmlNode child2 = root.AppendChild(xmlDoc.CreateElement("time", "signing-time"));
-            XmlAttribute childAtt2 = child2.Attributes.Append(xmlDoc.CreateAttribute("local"));
+            XmlNode child2 = root.AppendChild(xmlDoc.CreateElement("signing-reason", "signing-local-time"));
+            XmlAttribute childAtt2 = child2.Attributes.Append(xmlDoc.CreateAttribute("local-time"));
             childAtt2.InnerText = DateTime.Now.ToString();          //Local Time
-            child2.InnerText = signingTimeFromServer.ToString();    //Server Time
+            child2.InnerText = reason;    //Server Time
 
             //Sign Meta Data and store without key
             //xmlDoc = GetSignedMetaData(xmlDoc, certificate);
 
             dataObject.Data = xmlDoc.ChildNodes;
-            dataObject.Id = certificate.SerialNumber.ToString();
+            dataObject.Id = new Random().Next().ToString();
             return dataObject;
         }
 
