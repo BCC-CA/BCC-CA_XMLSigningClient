@@ -56,9 +56,6 @@ namespace XMLSigner.Library
         [Obsolete]
         internal static async Task<long?> UploadFileAsync(Tuple<XmlDocument, string> uploadFileToupleData, string token, long? previousSignedFileId, string uploadUrl)
         {
-            XmlDocument xmlDocument = uploadFileToupleData.Item1;
-            string uploadFileName = uploadFileToupleData.Item2;
-
             RestClient client = new RestClient(uploadUrl);
             RestRequest uploadRequest = new RestRequest("", Method.POST);
             if(previousSignedFileId != null)
