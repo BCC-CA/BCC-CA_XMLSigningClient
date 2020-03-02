@@ -361,8 +361,28 @@ namespace XMLSigner.Library
             return selectedCert[0];
         }
 
+        internal static bool CheckForInternetConnection()
+        {
+            try
+            {
+                using (var client = new WebClient())
+                using (client.OpenRead("http://google.com/generate_204"))
+                    return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static DateTime GetNetworkTime()
         {
+#if DEBUG
+            if (!CheckForInternetConnection())
+            {
+                return DateTime.UtcNow;
+            }
+#endif
             //Should check time server by certificate, not added now
             byte[] ntpData = new byte[48];
             ntpData[0] = 0x1B; //LeapIndicator = 0 (no warning), VersionNum = 3 (IPv4 only), Mode = 3 (Client Mode)
