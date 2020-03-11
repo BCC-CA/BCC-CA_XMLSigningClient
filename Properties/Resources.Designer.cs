@@ -61,15 +61,6 @@ namespace XMLSigner.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://localhost:44361/api/XmlFiles/.
-        /// </summary>
-        internal static string ApiUrl {
-            get {
-                return ResourceManager.GetString("ApiUrl", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] Logo {

@@ -19,7 +19,6 @@ namespace XMLSigner
             this.Hide();
         }
 
-
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
         {
             if (Environment.GetCommandLineArgs().Length > 1)    //Because 0 index is app runing location
