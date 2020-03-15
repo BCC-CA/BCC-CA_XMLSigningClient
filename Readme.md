@@ -1,20 +1,20 @@
 # XML Signing Desktop Client
 
-This is a Desktop client software builld on behalf of [Bangladesh Computer Council (**BCC**)](http://bcc.gov.bd/ "BCC Web") for enabling digital signing to any web forms. The client also embade signing time in the web form with help of *[***Windows NTP Server***](https://support.microsoft.com/en-us/help/262680/list-of-the-simple-network-time-protocol-sntp-time-servers-available)*. It checks client PC time with the **NTP Server** and if client PC time is not correct (if at least ***5 min*** difference from the NTP server), it will not allow users to sign the web form.
+This is a Desktop client software build on behalf of [Bangladesh Computer Council (**BCC**)](http://bcc.gov.bd/ "BCC Web") for enabling digital signing to any web forms. The client also embeds signing time in the web form with the help of *[***Windows NTP Server***](https://support.microsoft.com/en-us/help/262680/list-of-the-simple-network-time-protocol-sntp-time-servers-available)*. It checks client PC time with the **NTP Server** and if client PC time is not correct (if at least ***5 min*** difference from the NTP server), it will not allow users to sign the web form.
 
 Other NTP servers can be used from [***this list***](https://gist.github.com/AbrarJahin/5d257ec077843d81f60c0991735c0230).
 
-## Use Case
+## Use-Case
 
-This client software would be used to enable any website use digital signature with [x.5009 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia").
-This client software is a ***cross-site desktop client*** for any website having maintain the described API in this document and call the API in the [mentioned way](#mentioned_way).
+This client software would be used to enable any website using digital signature with [x.5009 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia").
+This client software is a ***cross-site desktop client*** for any website having supported the described API in this document and call the API in the [mentioned way](#invoking-the-desktop-client-to-sign-the-xml-file).
 
 ## How it Works
 
-This desktop client downloads a XML file, sign the file and upload the file with token based authintication.
-The files never stored in disk, it just downloaded as [**bytes**](https://stackoverflow.com/questions/4019837/what-do-we-mean-by-byte-array), stored on RAM for processing (signing the downloaded *file bytes*), after being processed, it is uploaded to server.
-The web application, using/invoking this app, should provide a file download URL, and file upload url along with parameters through API.
-It is recommanded the file download and upload URL should be short time expired enabled (may be, around 5-10 minuites later, liks should be expired) and secured with token authintication. It is also recommanded that the url should be expired after xml file upload completed.
+This desktop client downloads an XML file, sign the file and upload the file with token-based authentication.
+The files never stored in disk, it just downloaded as [**bytes**](https://stackoverflow.com/questions/4019837/what-do-we-mean-by-byte-array), stored on RAM for processing (signing the downloaded *file bytes*), after being processed, it is uploaded to the server.
+The web application, using/invoking this app, should provide a file **Download URL**, and file **Upload URL** along with parameters through API.
+It is suggested the file download and upload URL should be short time expired enabled (possibly, around 5-10 minutes later, download-links should be expired) and secured with token authentication. It is also advised that the URL should be expired after XML file upload completed.
 
 Demo web app for enabling digital signing in a site-
 
@@ -25,33 +25,33 @@ Demo web app for enabling digital signing in a site-
 
 ## Installation and Deployment
 
-To use the functionality, the desktop client app should be running in client PC (PC wher the website is browsed with browser), so that the app can be invoked/called from any website via javascript [AJAX call](#AJAX-call) as the client app creates a http server in the client PC by running the app.
+To use the functionality, the desktop client app should be running in client PC (PC where the website is browsed with browser), so that the app can be invoked/called from any website via javascript [AJAX call](#AJAX-call) as the client app creates an HTTP server in the client PC by running the app.
 As previously mentioned, to enable digital form signing, 2 things are needed-
 
 1. Desktop Client App running in the PC (desktop/laptop)
-2. Server having the 2 mentioned API to upload and download file and initiate AJAX call from web page
+2. The server having the 2 mentioned API to upload and download the file and initiate AJAX call from web page
 
-The server should also be capable of creating xml file from server and retrive data from xml and parse the signed xml file so that the server can easily understand who, when, why sign a file.
+The server should also be capable of creating XML file from the server and retrieve data from XML and parse the signed XML file so that the server can easily understand who, when, why to sign a file.
 
-## API List Needed in Server
+## API List Needed in the Server
 
 The client app needs 2 api enabled in server to work.
 
 1. **Get API** - to download the XML file from server
 2. **Post API** - to upload the XML file to server
 
-## Why XML-
+## Why XML
 
 We are using XML because-
-- Easy to store any data to xml.
-- Easy to extract any data from XML and store it to required data format.
-- Xml have standerd way of [signing](https://en.wikipedia.org/wiki/XML_Signature "XML Signature wikipedia"), sign verification, 
+- Easy to store any data to XML.
+- Easy to extract any data from XML and store it to the required data format.
+- XML has a standard way of signing, [signature](https://en.wikipedia.org/wiki/XML_Signature "XML Signature wikipedia") verification,
 - Freedom of storing data in any structure in XML
 
 ## XML Serialization and Deserialization
 
-Xml serialization and deserialization is needed for storing data in XML for enabling signing and deserialization is needed for retriving data from signed/unsigned XML.
-So, serialization and deserialization is completely up to the server, how the data they they would store and how they would read the data. For example, say I have a data like this-
+XML serialization and deserialization are needed for storing data in XML for enabling signing and deserialization are needed for retrieving data from signed/unsigned XML.
+So, serialization and deserialization are completely up to the server, how the data they would store and how they would read the data. For example, say I have data like this-
 
 | Poperty Name       | Value                         |
 |--------------------|-------------------------------|
@@ -71,7 +71,7 @@ So, serialization and deserialization is completely up to the server, how the da
 | ApplicationStatus  | 01822804636                   |
 | LastSignedId       | null                          |
 
-I can store data like this-
+Data can be stored like this-
 
 ```xml
 <LeaveApplication xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -151,9 +151,11 @@ And for this XML, signed XML (what would be uoloaded by desktop client) would be
 
 If any single charecter of the signed XML is changed, the signed XML would not be verified.
 
+The generated XML from data may not exactly like this, whatever the generated XML format is, the main thing is the server should be able to generate the XML from data and read the data from XML with or without multiple `<Signature>` element because any XML is a representation of a web form and each web form may have multiple verification steps, so each XML may have multiple signatures.
+
 Signature verification API is implemented in [**here** for ASP.Net](https://github.com/AbrarJahin/XML-Signer-ASP.NetCore-PostGRE/blob/master/Controllers/api/XmlFilesController.cs#L35). For other languages, implementation would be like that.
 
-The signature contains the *x509 certificate* of the user so that the certificate can be verified easily and we can know who have signed the file along with the status of his certificate at that time. The certificate can be found in the **X509Certificate** tag inside the **Signature** tag.
+The signature contains the *x509 certificate* of the user so that the certificate can be verified easily and we can know who has signed the file along with the status of his certificate at that time. The certificate can be found in the **X509Certificate** tag inside the **Signature** tag.
 
 ## Invoking the desktop client to sign the XML File
 
@@ -187,54 +189,52 @@ $.ajax({
 		location.reload();
 	}
 });
-var s = "JavaScript syntax highlighting";
-alert(s);
 ```
-If the ajax call is completed and javascript gets status code of 200, that means
+If the ajax call is completed and javascript gets status code of 200, which means the XML file is downloaded by the desktop client, then signed and uploaded to the server successfully.
 
 ## Testing
 
-Client application is created having capablity of running each time windows starts. We can easily know if the application is running or not.
-Every time when windows starts, if the application is running in backround, you can see if the desktop client application is running or not by the following ways-
+The client application is created having the aptitude of running each time windows starts. We can easily know if the application is running or not.
+Whenever windows start, if the application is running in the background, you can see if the desktop client application is running or not by the following ways-
 
 1. When your PC just starts, you will get a notification like this-
 
-![alt text](./.doc/test1.jpg "Application Notification")
+![Bcc-CA Client Notification](./.doc/test1.jpg "Application Notification")
 
 2. If you have missed the notification and if the notification is not removed, then you will see the notification in the notification list like this-
 
-![alt text](./.doc/test2.jpg "Application previous Notification")
+![Bcc-CA Client Taskbar Indicator](./.doc/test2.jpg "Application Taskbar Indicator")
 
 3. If the application is running, you will see an icon in the Task-Bar-
 
-![alt text](./.doc/test3.jpg "Application previous Notification")
+![Bcc-CA Client Show Previous Notification](./.doc/test3.jpg "Application show previous notification")
 
-4. If the application is running, then if you go to [this link (*localhoost:5050*)](http://localhoost:5050), then you will see this-
+4. If the application is running, then if you go to [this link (*localhost:5050*)](http://localhost:5050), then you will see this-
 
-![alt text](./.doc/test4.jpg "Application Checking Through Browser")
+![Bcc-CA Client Checking Through Browser](./.doc/test4.jpg "Application Checking Through Browser")
 
 if the application is running.
 
 If the application is not running, then you will see something like this-
 
-![alt text](./.doc/test-fail.jpg "Application Not Running")
+![Bcc-CA Client Not Running](./.doc/test-fail.jpg "Application Not Running")
 
-You can use any option mentioned in above 4 ways to check if desktop client is running or not.
+You can use any option mentioned in the above 4 ways to check if the desktop client is running or not.
 
 ## Architecture
 
 The architecture can be described by the following image-
-
-![alt text](./.doc/architecture.jpg "Application Arcchitecture")
-
-
 <!---
-<object data="./.doc/architecture.pdf" type="application/pdf" width="700px" height="700px">
-    <embed src="./.doc/architecture.jpg">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="./.doc/architecture.pdf">Download PDF</a>.</p>
+![Bcc-CA Client Arcchitecture](./.doc/architecture.jpg "Application Arcchitecture")
+-->
+
+<object data="./.doc/architecture.svg" type="application/pdf" width="700px" height="700px">
+    <embed src="./.doc/architecture.svg">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="./.doc/architecture.svg">Download PDF</a>.</p>
     </embed>
 </object>
--->
+
 
 ## Work Flow
 
+![Bcc-CA Client Work Flow](./.doc/work-flow.jpg "Application Work Flow")
