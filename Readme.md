@@ -234,7 +234,3 @@ The architecture can be described by the following image-
     </embed>
 </object>
 -->
-
-## Work Flow
-
-![Bcc-CA Client Work Flow](./.doc/work-flow.svg "Application Work Flow")
