@@ -228,13 +228,13 @@ The architecture can be described by the following image-
 ![Bcc-CA Client Arcchitecture](./.doc/architecture.svg "Application Arcchitecture")
 
 <!---
-<object data="./.doc/architecture.svg" type="application/pdf" width="700px" height="700px">
-    <embed src="./.doc/architecture.svg">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="./.doc/architecture.svg">Download PDF</a>.</p>
+<object data="./.doc/architecture.pdf" type="application/pdf" width="700px" height="700px">
+    <embed src="./.doc/architecture.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="./.doc/architecture.pdf">Download PDF</a>.</p>
     </embed>
 </object>
 -->
 
 ## Work Flow
 
-![Bcc-CA Client Work Flow](./.doc/work-flow.jpg "Application Work Flow")
+![Bcc-CA Client Work Flow](./.doc/work-flow.svg "Application Work Flow")
