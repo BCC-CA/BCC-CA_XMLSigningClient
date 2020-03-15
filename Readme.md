@@ -225,7 +225,7 @@ You can use any option mentioned in the above 4 ways to check if the desktop cli
 
 The architecture can be described by the following image-
 
-![Bcc-CA Client Arcchitecture](./.doc/architecture.svg "Application Arcchitecture")
+![Bcc-CA Client Arcchitecture](./.doc/architecture.jpg "Application Arcchitecture")
 
 <!---
 <object data="./.doc/architecture.pdf" type="application/pdf" width="700px" height="700px">
