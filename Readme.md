@@ -6,8 +6,22 @@ Other NTP servers can be used from [***this list***](https://gist.github.com/Abr
 
 ## Use-Case
 
-This client software would be used to enable any website using digital signature with [x.5009 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia").
+This client software would be used to enable any website using digital signature with [x.509 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia").
 This client software is a ***cross-site desktop client*** for any website having supported the described API in this document and call the API in the [mentioned way](#invoking-the-desktop-client-to-sign-the-xml-file).
+
+## Architecture
+
+The architecture can be described by the following image-
+
+![Bcc-CA Client Arcchitecture](./.doc/architecture.jpg "Application Arcchitecture")
+
+<!---
+<object data="./.doc/architecture.pdf" type="application/pdf" width="700px" height="700px">
+    <embed src="./.doc/architecture.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="./.doc/architecture.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
+-->
 
 ## How it Works
 
@@ -220,17 +234,3 @@ If the application is not running, then you will see something like this-
 ![Bcc-CA Client Not Running](./.doc/test-fail.jpg "Application Not Running")
 
 You can use any option mentioned in the above 4 ways to check if the desktop client is running or not.
-
-## Architecture
-
-The architecture can be described by the following image-
-
-![Bcc-CA Client Arcchitecture](./.doc/architecture.jpg "Application Arcchitecture")
-
-<!---
-<object data="./.doc/architecture.pdf" type="application/pdf" width="700px" height="700px">
-    <embed src="./.doc/architecture.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="./.doc/architecture.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
--->
