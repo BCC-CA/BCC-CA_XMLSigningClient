@@ -111,7 +111,8 @@ namespace XMLSigner.Library
 
             if (uploadFileID != null)
             {
-                MessageBox.Show("Sign File Uploaded");
+                //MessageBox.Show("Sign File Uploaded");
+                App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");
                 return uploadFileID;
             }
             else return null;

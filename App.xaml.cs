@@ -10,7 +10,7 @@ namespace XMLSigner
 {
     public partial class App : Application
     {
-        private TaskbarIcon tbi;
+        private static TaskbarIcon tbi;
         protected override void OnStartup(StartupEventArgs e)
         {
             Process proc = Process.GetCurrentProcess();
@@ -30,13 +30,19 @@ namespace XMLSigner
             base.OnStartup(e);
         }
 
+        internal static void ShowTaskbarNotificationAfterUpload(string message) //"Signed XML File Uploaded Successfully"
+        {
+            tbi.ToolTipText = "BCC-CA XML Signing Client";
+            tbi.ShowBalloonTip("XML Signing Client", message, BalloonIcon.Warning);
+        }
+
         private void AddTaskbarIcon()
         {
             tbi = new TaskbarIcon();
             tbi.Icon = XmlSign.BytesToIcon(XMLSigner.Properties.Resources.Logo);
-            tbi.ToolTipText = "BCC-CA";
+            tbi.ToolTipText = "BCC-CA XML Signing Client";
             //tbi.Visibility = Visibility.Visible;
-            tbi.ShowBalloonTip("BCC-CA", "BCC-CA is running background", BalloonIcon.Info);
+            tbi.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);
         }
 
         private void RegisterApplicationToRunOnStartup()

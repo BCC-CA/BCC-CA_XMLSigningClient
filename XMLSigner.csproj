@@ -7,7 +7,7 @@
     <ApplicationIcon>Resources\Logo.ico</ApplicationIcon>
     <StartupObject>XMLSigner.App</StartupObject>
     <Win32Resource />
-    <AssemblyName>XML Signer</AssemblyName>
+    <AssemblyName>XML Signing Client</AssemblyName>
     <PublishTrimmed>true</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

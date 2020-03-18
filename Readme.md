@@ -7,7 +7,17 @@ Other NTP servers can be used from [***this list***](https://gist.github.com/Abr
 ## Use-Case
 
 This client software would be used to enable any website using digital signature with [x.509 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia").
-This client software is a ***cross-site desktop client*** for any website having supported the described API in this document and call the API in the [mentioned way](#invoking-the-desktop-client-to-sign-the-xml-file).
+This client software is a ***cross-site desktop client*** for any website having supported the described API in this document and call the API in the [mentioned way](#invoking-the-desktop-client-to-sign-the-xml-file). To sign a form, the **XML Signing Client** should run on the background to sign the XML. If a signing is triggered, a native certificate selection window will pop up like this-
+
+![Bcc-CA Client Arcchitecture](./.doc/Pop-Up.jpg "Windows Native Certificate Selection Window")
+
+Then we should have chosen a certificate. We are using a non-extractable private key which is stored in [SafeNet dongle](https://safenet.gemalto.com/). To run the dongle, we need a [SafeNet driver software](https://safenet.gemalto.com/multi-factor-authentication/security-applications/authentication-client-token-management/) which is needed to use the certificate for signing anything which is protected with a password. So, after choosing the certificate, a SafeNet popup will come to take the password of the certificate like this-
+
+![Bcc-CA Client - Safenet Password](./.doc/SafeNet-PopUp.jpg "Bcc-CA Client - Safenet Password")
+
+After the file being signed, the file will be uploaded and after uploading, a notification will come like this-
+
+![Bcc-CA Client - Upload Confirmation Notification](./.doc/Sign-Upload-Notification.jpg "Bcc-CA Client - Signed File Upload Confirmation Notification")
 
 ## Architecture
 
