@@ -4,6 +4,10 @@ This is a Desktop client software build on behalf of [Bangladesh Computer Counci
 
 Other NTP servers can be used from [***this list***](https://gist.github.com/AbrarJahin/5d257ec077843d81f60c0991735c0230).
 
+## Prerequisite and Assumptions
+
+We are using x509 certificate with [SafeNet](https://safenet.gemalto.com/) dongle. So, to read the certificate, we need SafeNet client installed and running in the client PC so that window's native certificate window can read and show certificate in the certificate list to select for signing. This desktop client app is tested with SafeNet client with x509 certificate but should work for other x509 certificates also.
+
 ## Use-Case
 
 This client software would be used to enable any website using digital signature with [x.509 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia").
