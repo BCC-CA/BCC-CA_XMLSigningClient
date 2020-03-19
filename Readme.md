@@ -6,7 +6,7 @@ Other NTP servers can be used from [***this list***](https://gist.github.com/Abr
 
 ## Prerequisite and Assumptions
 
-We are using x509 certificate with [SafeNet](https://safenet.gemalto.com/) dongle. So, to read the certificate, we need SafeNet client installed and running in the client PC so that window's native certificate window can read and show certificate in the certificate list to select for signing. This desktop client app is tested with SafeNet client with x509 certificate but should work for other x509 certificates also.
+We are using [x.509 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia") with [SafeNet 5110 eToken 5110)[https://safenet.gemalto.com/multi-factor-authentication/authenticators/pki-usb-authentication/etoken-5110-usb-token/] dongle. To read the certificate, we need (SafeNet Authentication Client)[https://safenet.gemalto.com/multi-factor-authentication/security-applications/authentication-client-token-management/] installed and running in the client PC so that window's native certificate window can read and show certificate in the certificate list to select for signing. This [BCC-CA XML Signing Client](./#) is tested with **SafeNet 5110 Client** with ***x509 certificate*** but should work for other x509 certificates also.
 
 ## Use-Case
 
