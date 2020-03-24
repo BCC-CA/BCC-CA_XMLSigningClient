@@ -194,7 +194,7 @@ $.ajax({
 	crossdomain: true,
 	contentType: 'text/plain',
 	accepts: 'application/json',
-	url: "http://localhost:5050/",              //This URL should not be changed
+	url: "http://127.0.0.1:5050/",              //This URL should not be changed
     type: "POST",                               //This method should not be changed
 	dataType: 'jsonp',
 	data: {

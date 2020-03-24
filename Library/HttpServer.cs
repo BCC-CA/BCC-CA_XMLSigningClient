@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Xml;
 
 namespace XMLSigner.Library
@@ -15,7 +14,8 @@ namespace XMLSigner.Library
         public HttpServer(int port)
         {
             httpListener = new HttpListener();
-            httpListener.Prefixes.Add("http://localhost:" + port + "/");
+            httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
+
             _ = StartServerAsync();
             //StopServer();
         }
