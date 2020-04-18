@@ -47,7 +47,7 @@ It is suggested the file download and upload URL should be short time expired en
 Demo web app for enabling digital signing in a site-
 
 - [ASP.Net Core](https://github.com/AbrarJahin/XML-Signer-ASP.NetCore-PostGRE "ASP.Net Core Server Example")
-- PHP Laravel (*demo coming soon*)
+- [PHP Laravel](https://github.com/AbrarJahin/XML-Signer-Php-Laravel-MySQL "PHP Laravel Server Example")
 - Java Spring (*demo coming soon*)
 - Python Django (*demo coming soon*)
 
