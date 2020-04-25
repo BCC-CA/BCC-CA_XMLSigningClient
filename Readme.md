@@ -4,6 +4,10 @@ This is a Desktop client software build on behalf of [Bangladesh Computer Counci
 
 Other NTP servers can be used from [***this list***](https://gist.github.com/AbrarJahin/5d257ec077843d81f60c0991735c0230).
 
+## Download
+
+Please click [here](./.doc/publish/XML Signing Client.exe "Current build for Windows 10 x64") to download.
+
 ## Prerequisite and Assumptions
 
 We are using [x.509 certificate](https://en.wikipedia.org/wiki/X.509 "x509 Certificate - Wikipedia") with [SafeNet 5110 eToken 5110)[https://safenet.gemalto.com/multi-factor-authentication/authenticators/pki-usb-authentication/etoken-5110-usb-token/] dongle. To read the certificate, we need (SafeNet Authentication Client)[https://safenet.gemalto.com/multi-factor-authentication/security-applications/authentication-client-token-management/] installed and running in the client PC so that window's native certificate window can read and show certificate in the certificate list to select for signing. This [BCC-CA XML Signing Client](./#) is tested with **SafeNet 5110 eToken** dongle containing ***x509 certificate*** with ***SafeNet Authentication Client***, but should work for other *x509 certificates* also.
