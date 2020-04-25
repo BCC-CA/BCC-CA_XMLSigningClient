@@ -6,7 +6,7 @@ Other NTP servers can be used from [***this list***](https://gist.github.com/Abr
 
 ## Download
 
-Please click [here](./.doc/publish/XML Signing Client.exe "Current build for Windows 10 x64") to download.
+Please click [here](https://raw.githubusercontent.com/AbrarJahin/BCC-CA_XMLSigningClient/master/.doc/publish/XML%20Signing%20Client.exe "Latest build for Windows 10 x64") to download.
 
 ## Prerequisite and Assumptions
 
