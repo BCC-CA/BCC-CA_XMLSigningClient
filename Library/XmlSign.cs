@@ -63,7 +63,7 @@ namespace XMLSigner.Library
                 uploadRequest.AddParameter("previousFileId", previousSignedFileId);
                 uploadRequest.AddParameter("token", token);
             }
-            uploadRequest.AddFile("xmlFile", Encoding.UTF8.GetBytes(uploadFileToupleData.Item1.OuterXml), uploadFileToupleData.Item2);
+            uploadRequest.AddFile("xmlFile", Encoding.UTF8.GetBytes(uploadFileToupleData.Item1.OuterXml), uploadFileToupleData.Item2);  //2nd part is file name
 
             IRestResponse uploadResponse = await client.ExecutePostTaskAsync(uploadRequest);
             if (uploadResponse.StatusCode.CompareTo(HttpStatusCode.OK) == 0)

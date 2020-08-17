@@ -2,8 +2,10 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Xml;
 
 namespace XMLSigner.Library
@@ -28,7 +30,7 @@ namespace XMLSigner.Library
         private async Task StartServerAsync()
         {
             httpListener.Start();
-            while (true)
+            while(true)
             {
                 await ServerHandlerAsync();
             }
@@ -65,8 +67,8 @@ namespace XMLSigner.Library
             httpListenerContext.Response.StatusCode = (int)HttpStatusCode.OK;
             string returnJsonString;
 
-            ////////////
-            try {
+            try
+            {
                 string uploadUrl = httpListenerContext.Request.QueryString["uploadUrl"];
                 string downloadUrl = httpListenerContext.Request.QueryString["downloadUrl"];
                 long id = long.Parse(httpListenerContext.Request.QueryString["id"]);
@@ -88,7 +90,6 @@ namespace XMLSigner.Library
                 else
                     returnJsonString = "BCC-CA Is Running";
             }
-            ////////////
 
             httpListenerContext.Response.ContentLength64 = Encoding.UTF8.GetByteCount(returnJsonString);
             using (Stream stream = httpListenerContext.Response.OutputStream)
