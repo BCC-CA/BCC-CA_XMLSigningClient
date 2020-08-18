@@ -2,11 +2,10 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Xml;
+using XMLSigner.Dialog.WysiwysDialog;
 
 namespace XMLSigner.Library
 {
@@ -105,19 +104,30 @@ namespace XMLSigner.Library
         [Obsolete]
         private async Task<long?> SignFileAsync(long previouSigningFileId, string token, string downloadUrl, string uploadUrl, long procedureSerial = -1, string reason = "")
         {
+            
             Tuple<XmlDocument, string> downloadedFile = await XmlSign.DownloadFileWithIdAsync(downloadUrl);
+            
+            //Open Dialog Popup
+            using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1))
+            {
+                if (inputDialog.ShowDialog() == false)
+                {
+                    return null;
+                }
+            }
+
             XmlDocument signedXmldDoc = XmlSign.GetSignedXMLDocument(downloadedFile.Item1, XmlSign.GetX509Certificate2FromDongle(), procedureSerial, reason);
+            
             Tuple<XmlDocument, string> uploadFile = new Tuple<XmlDocument, string>(signedXmldDoc, downloadedFile.Item2);
             long? uploadFileID = await XmlSign.UploadFileAsync(uploadFile, token, previouSigningFileId, uploadUrl);
 
             if (uploadFileID != null)
             {
-                //MessageBox.Show("Sign File Uploaded");
                 App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");
-                return uploadFileID;
             }
-            else return null;
-            /*//Verify
+            return uploadFileID;
+            /*
+            //Verify
             bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmldDoc);
             if (ifSignVerified == true)
             {
@@ -130,7 +140,8 @@ namespace XMLSigner.Library
             else
             {
                 MessageBox.Show("File Has No Sign");
-            }*/
+            }
+            */
         }
     }
 }

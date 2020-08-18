@@ -14,6 +14,7 @@ namespace XMLSigner
     {
         public MainWindow()
         {
+            //Add waight during download - https://github.com/lim0513/ModernMessageBoxLibForWPF/blob/master/DemoProj/MainWindow.xaml.cs
             //ActivateNotifyIcon();
             InitializeComponent();
             this.Hide();
