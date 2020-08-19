@@ -104,10 +104,13 @@ namespace XMLSigner.Library
         [Obsolete]
         private async Task<long?> SignFileAsync(long previouSigningFileId, string token, string downloadUrl, string uploadUrl, long procedureSerial = -1, string reason = "")
         {
-            
             Tuple<XmlDocument, string> downloadedFile = await XmlSign.DownloadFileWithIdAsync(downloadUrl);
-            
+
             //Open Dialog Popup
+            if (downloadedFile == null)
+            {
+                return null;
+            }
             using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1))
             {
                 if (inputDialog.ShowDialog() == false)

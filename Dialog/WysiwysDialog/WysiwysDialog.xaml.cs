@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Data;
 using System.Xml;
+using XMLSigner.Library;
+using XMLSigner.Model;
 
 namespace XMLSigner.Dialog.WysiwysDialog
 {
@@ -12,7 +16,14 @@ namespace XMLSigner.Dialog.WysiwysDialog
         public WysiwysDialog(XmlDocument xmlToSign)
         {
             InitializeComponent();
-            var a = xmlToSign;
+            /*
+            XmlDocument tempDoc = new XmlDocument();
+            tempDoc.LoadXml(xmlToSign.InnerText);
+            List<Certificate> certificateList = XmlSign.GetAllSign(tempDoc);
+            XmlDocument realDocument = XmlSign.GetRealXmlDocument(tempDoc);
+            */
+            XmlDataProvider dataProvider = this.FindResource("xmlDataProvider") as XmlDataProvider;
+            dataProvider.Document = xmlToSign;
         }
 
         private void btnDialogOk_Click(object sender, RoutedEventArgs e)
