@@ -31,6 +31,7 @@ namespace XMLSigner.Dialog.WysiwysDialog
             realDocument = XmlSign.GetRealXmlDocument(tempXml);
             XmlDataProvider dataProvider = this.FindResource("xmlDataProvider") as XmlDataProvider;
             dataProvider.Document = realDocument;
+            Signature.ItemsSource = certificateList;
         }
 
         private void btnDialogOk_Click(object sender, RoutedEventArgs e)

@@ -12,7 +12,7 @@
         WindowStyle="ToolWindow"
         ResizeMode="CanResizeWithGrip"
         Height="450" Width="800">
-    
+
     <Window.Resources>
         <HierarchicalDataTemplate x:Key="NodeTemplate">
             <TextBlock x:Name="text"
@@ -41,18 +41,52 @@
     <Grid>
         <Label Content="Real Document" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <TreeView
-            Margin="0,26,400,53"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            MinHeight="100"
+            MinWidth="100"
+            Margin="0,26,0,0"
             Name="realDocumentTreeView"
             Background="AliceBlue"
             ItemsSource="{Binding Source={StaticResource xmlDataProvider}, XPath=*}"
             ItemTemplate="{StaticResource NodeTemplate}"
+            Height="355"
+            Width="405"
             >
         </TreeView>
 
         <Label Content="Existing Signatures" HorizontalAlignment="Right" VerticalAlignment="Top" />
 
+        <ListView
+            Name="Signature"
+            MinHeight="100"
+            MinWidth="100"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Height="355"
+            Width="395"
+            Margin="0,26,0,53" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <WrapPanel>
+                        
+                        
+                        
+                        <TextBlock Text="Validity: " />
+                        <TextBlock Text="{Binding ValidFrom}" FontWeight="Bold" />
+                        <TextBlock Text=" - " />
+                        <RichTextBox />
+                        <TextBlock Text="{Binding ValidTo}" FontWeight="Bold" />
+                        <TextBlock Text=" Issuer" />
+                        <TextBlock Text="{Binding Issuer}" TextDecorations="Underline" Foreground="Blue" Cursor="Hand" />
+                        <TextBlock Text=")" />
+                    </WrapPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
         <Button IsDefault="True" Name="btnDialogOk" Click="btnDialogOk_Click" Content="Sign and Upload" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="38" Width="309" Margin="10,0,0,10"/>
         <Button IsCancel="True" Content="Don't Sign" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="38" Width="309" Margin="0,0,10,10"/>
-        
+
     </Grid>
 </Window>
