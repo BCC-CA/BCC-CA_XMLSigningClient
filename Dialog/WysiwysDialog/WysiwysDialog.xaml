@@ -41,17 +41,13 @@
     <Grid>
         <Label Content="Real Document" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <TreeView
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
             MinHeight="100"
             MinWidth="100"
-            Margin="0,26,0,0"
+            Margin="0,26,400,53"
             Name="realDocumentTreeView"
             Background="AliceBlue"
             ItemsSource="{Binding Source={StaticResource xmlDataProvider}, XPath=*}"
             ItemTemplate="{StaticResource NodeTemplate}"
-            Height="355"
-            Width="405"
             >
         </TreeView>
 
@@ -61,32 +57,50 @@
             Name="Signature"
             MinHeight="100"
             MinWidth="100"
-            HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Height="355"
-            Width="395"
-            Margin="0,26,0,53" >
+            Margin="405,26,10,0" >
+            <ListView.ItemContainerStyle>
+                <Style>
+                    <Setter Property="Control.Background" Value="White" />
+                    <Setter Property="Control.BorderThickness" Value="0.3" />
+                    <Setter Property="Control.BorderBrush" Value="Black" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <WrapPanel>
-                        
-                        
-                        
-                        <TextBlock Text="Validity: " />
-                        <TextBlock Text="{Binding ValidFrom}" FontWeight="Bold" />
-                        <TextBlock Text=" - " />
-                        <RichTextBox />
-                        <TextBlock Text="{Binding ValidTo}" FontWeight="Bold" />
-                        <TextBlock Text=" Issuer" />
-                        <TextBlock Text="{Binding Issuer}" TextDecorations="Underline" Foreground="Blue" Cursor="Hand" />
-                        <TextBlock Text=")" />
-                    </WrapPanel>
+                    <Grid ShowGridLines="False" Background="AntiqueWhite">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Valid From" Grid.Row="0" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding ValidFrom}" Grid.Row="0" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+
+                        <TextBlock Text="Valid To" Grid.Row="1" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding ValidTo}" Grid.Row="1" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+
+                        <TextBlock Text="SigningTime" Grid.Row="2" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding SigningTime}" Grid.Row="2" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+
+                        <TextBlock Text="Issuer" Grid.Row="3" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Issuer}" Grid.Row="3" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+
+                        <TextBlock Text="Subject" Grid.Row="4" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Subject}" Grid.Row="4" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                    </Grid>
+
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
         <Button IsDefault="True" Name="btnDialogOk" Click="btnDialogOk_Click" Content="Sign and Upload" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="38" Width="309" Margin="10,0,0,10"/>
         <Button IsCancel="True" Content="Don't Sign" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="38" Width="309" Margin="0,0,10,10"/>
-
     </Grid>
 </Window>
