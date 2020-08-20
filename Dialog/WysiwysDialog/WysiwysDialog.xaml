@@ -8,9 +8,11 @@
         Title="Please Check The File Before Sign"
         WindowStartupLocation="CenterScreen"
         ContentRendered="Window_ContentRendered"
+        Loaded="OnLoaded"
         WindowStyle="ToolWindow"
         ResizeMode="CanResizeWithGrip"
         Height="450" Width="800">
+    
     <Window.Resources>
         <HierarchicalDataTemplate x:Key="NodeTemplate">
             <TextBlock x:Name="text"
@@ -35,16 +37,22 @@
         </HierarchicalDataTemplate>
         <XmlDataProvider x:Key="xmlDataProvider"></XmlDataProvider>
     </Window.Resources>
+
     <Grid>
+        <Label Content="Real Document" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <TreeView
-            Margin="0,0,0,53"
-            Name="treeView1"
+            Margin="0,26,400,53"
+            Name="realDocumentTreeView"
             Background="AliceBlue"
             ItemsSource="{Binding Source={StaticResource xmlDataProvider}, XPath=*}"
             ItemTemplate="{StaticResource NodeTemplate}"
             >
         </TreeView>
+
+        <Label Content="Existing Signatures" HorizontalAlignment="Right" VerticalAlignment="Top" />
+
         <Button IsDefault="True" Name="btnDialogOk" Click="btnDialogOk_Click" Content="Sign and Upload" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="38" Width="309" Margin="10,0,0,10"/>
         <Button IsCancel="True" Content="Don't Sign" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="38" Width="309" Margin="0,0,10,10"/>
+        
     </Grid>
 </Window>

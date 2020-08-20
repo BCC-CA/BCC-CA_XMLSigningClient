@@ -111,7 +111,7 @@ namespace XMLSigner.Library
             {
                 return null;
             }
-            using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1))
+            using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
             {
                 if (inputDialog.ShowDialog() == false)
                 {

@@ -13,17 +13,24 @@ namespace XMLSigner.Dialog.WysiwysDialog
     /// </summary>
     public partial class WysiwysDialog : Window, IDisposable
     {
-        public WysiwysDialog(XmlDocument xmlToSign)
+        private readonly string receivedXmlText;
+        private List<Certificate> certificateList;
+        private XmlDocument realDocument;
+
+        public WysiwysDialog(string xmlText)
         {
             InitializeComponent();
-            /*
-            XmlDocument tempDoc = new XmlDocument();
-            tempDoc.LoadXml(xmlToSign.InnerText);
-            List<Certificate> certificateList = XmlSign.GetAllSign(tempDoc);
-            XmlDocument realDocument = XmlSign.GetRealXmlDocument(tempDoc);
-            */
+            receivedXmlText = xmlText;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            XmlDocument tempXml = new XmlDocument();
+            tempXml.LoadXml(receivedXmlText);
+            certificateList = XmlSign.GetAllSign(tempXml);
+            realDocument = XmlSign.GetRealXmlDocument(tempXml);
             XmlDataProvider dataProvider = this.FindResource("xmlDataProvider") as XmlDataProvider;
-            dataProvider.Document = xmlToSign;
+            dataProvider.Document = realDocument;
         }
 
         private void btnDialogOk_Click(object sender, RoutedEventArgs e)
