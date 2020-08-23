@@ -10,8 +10,8 @@
         ContentRendered="Window_ContentRendered"
         Loaded="OnLoaded"
         WindowStyle="ToolWindow"
-        ResizeMode="CanResizeWithGrip"
-        Height="450" Width="800">
+        ResizeMode="NoResize"
+        Height="472" Width="800">
 
     <Window.Resources>
         <HierarchicalDataTemplate x:Key="NodeTemplate">
@@ -59,7 +59,7 @@
             MinWidth="100"
             VerticalAlignment="Top"
             Height="355"
-            Margin="405,26,10,0" >
+            Margin="405,26,0,0" >
             <ListView.ItemContainerStyle>
                 <Style>
                     <Setter Property="Control.Background" Value="White" />
@@ -80,23 +80,40 @@
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
+
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
                         </Grid.RowDefinitions>
-                        <TextBlock Text="Valid From" Grid.Row="0" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                        <TextBlock Text="{Binding ValidFrom}" Grid.Row="0" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
 
-                        <TextBlock Text="Valid To" Grid.Row="1" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                        <TextBlock Text="{Binding ValidTo}" Grid.Row="1" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Name" Grid.Row="0" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding IssuedTo}" Grid.Row="0" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
 
-                        <TextBlock Text="SigningTime" Grid.Row="2" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                        <TextBlock Text="{Binding SigningTime}" Grid.Row="2" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Issuer" Grid.Row="0" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding IssuedBy}" Grid.Row="0" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
 
-                        <TextBlock Text="Issuer" Grid.Row="3" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                        <TextBlock Text="{Binding Issuer}" Grid.Row="3" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Serial Number" Grid.Row="1" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding SerialNumber}" Grid.Row="1" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
 
-                        <TextBlock Text="Subject" Grid.Row="4" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                        <TextBlock Text="{Binding Subject}" Grid.Row="4" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Validity" Grid.Row="2" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Validity}" Grid.Row="2" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+
+                        <TextBlock Text="Valid From" Grid.Row="3" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding ValidFrom, StringFormat='dddd, dd MMMM yyyy hh:mm:ss ttK'}" Grid.Row="3" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+
+                        <TextBlock Text="Valid To" Grid.Row="4" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding ValidTo, StringFormat='dddd, dd MMMM yyyy hh:mm:ss ttK'}" Grid.Row="4" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+
+                        <TextBlock Text="SigningTime" Grid.Row="5" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding SigningTime, StringFormat='dddd, dd MMMM yyyy hh:mm:ss ttK'}" Grid.Row="5" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+
+                        <TextBlock Text="Issuer" Grid.Row="6" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Issuer}" Grid.Row="6" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+
+                        <TextBlock Text="Subject" Grid.Row="7" Grid.Column="0" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Subject}" Grid.Row="7" Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
                     </Grid>
-
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
