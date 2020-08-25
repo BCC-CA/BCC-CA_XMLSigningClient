@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Xml;
+using XMLSigner.Dialog.WysiwysDialog;
 using XMLSigner.Library;
 
 namespace XMLSigner
@@ -19,6 +20,10 @@ namespace XMLSigner
             InitializeComponent();
             this.Hide();
             this.Close();
+            //This part is used for initializing element so that popup is loaded first time
+            using (WysiwysDialog inputDialog = new WysiwysDialog(""))
+            {
+            }
         }
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
