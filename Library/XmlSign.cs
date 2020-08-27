@@ -358,8 +358,14 @@ namespace XMLSigner.Library
         {
             X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
+
+            X509Certificate2Collection certCollection = (X509Certificate2Collection)store.Certificates;
+            X509Certificate2Collection filteredCertCollection = (X509Certificate2Collection)certCollection
+                                                            //.Find(X509FindType.FindByIssuerName, "Bcc", true)
+                                                            .Find(X509FindType.FindByTimeValid, DateTime.Now, true);
+
             // If you get compilation error after on X509Certificate2UI class, then Project->Add Reference -> Add System.Security 
-            X509Certificate2Collection selectedCert = X509Certificate2UI.SelectFromCollection(store.Certificates, null, null, X509SelectionFlag.SingleSelection);
+            X509Certificate2Collection selectedCert = X509Certificate2UI.SelectFromCollection(filteredCertCollection, "Digital Document Signer", "Please Select a Certificate for Signing Document", X509SelectionFlag.SingleSelection);
             return selectedCert[0];
         }
 
