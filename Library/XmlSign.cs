@@ -356,16 +356,31 @@ namespace XMLSigner.Library
 
         internal static X509Certificate2 GetX509Certificate2FromDongle()
         {
-            X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
+            List<X509Certificate2> certList = new List<X509Certificate2>();
+            using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
+            {
+                store.Open(OpenFlags.ReadOnly);
+                foreach (X509Certificate2 cert in (X509Certificate2Collection)store.Certificates)
+                {
+                    //Filter for not showing unnecessery certificates
+                    if (
+                        cert.HasPrivateKey
+                        && !cert.Issuer.Contains("localhost")
+                        && (cert.NotAfter>=DateTime.Now && cert.NotBefore<=DateTime.Now) 
+                        )
+                    {
+                        certList.Add(cert);
+                    }
+                }
+                store.Close(); //No Need
+            }
+            X509Certificate2Collection selectedCert = X509Certificate2UI.SelectFromCollection(
+                    new X509Certificate2Collection(certList.ToArray()),
+                    "Digital Document Signer",
+                    "Please Select a Certificate for Signing Document",
+                    X509SelectionFlag.SingleSelection
+                );
 
-            X509Certificate2Collection certCollection = (X509Certificate2Collection)store.Certificates;
-            X509Certificate2Collection filteredCertCollection = (X509Certificate2Collection)certCollection
-                                                            //.Find(X509FindType.FindByIssuerName, "Bcc", true)
-                                                            .Find(X509FindType.FindByTimeValid, DateTime.Now, true);
-
-            // If you get compilation error after on X509Certificate2UI class, then Project->Add Reference -> Add System.Security 
-            X509Certificate2Collection selectedCert = X509Certificate2UI.SelectFromCollection(filteredCertCollection, "Digital Document Signer", "Please Select a Certificate for Signing Document", X509SelectionFlag.SingleSelection);
             return selectedCert[0];
         }
 
