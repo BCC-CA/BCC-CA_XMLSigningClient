@@ -54,7 +54,7 @@ namespace XMLSigner
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.ToString(), "Error Registering Application with Browser", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

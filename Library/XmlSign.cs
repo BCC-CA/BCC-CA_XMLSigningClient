@@ -204,7 +204,7 @@ namespace XMLSigner.Library
 
             //Check if local time is OK
             if(!CheckIfLocalTimeIsOk()) {
-                MessageBox.Show("PC Time is not updated !!");
+                MessageBox.Show("PC Time is need to be updated before sign !");
                 return null;    //Last Sign Not Verified
             }
 
@@ -214,7 +214,7 @@ namespace XMLSigner.Library
                 bool? isLastSignVerified = VerifyLastSign(xmlDocument);
                 if (isLastSignVerified == false)
                 {
-                    MessageBox.Show("File Tempered after last sign !!");
+                    MessageBox.Show("The file was TEMPERED after last sign !!");
                     return null;    //Last Sign Not Verified
                 }
             }
@@ -276,7 +276,7 @@ namespace XMLSigner.Library
                     );
                 /////////////////////
             } catch (Exception exception) {
-                MessageBox.Show("Internal System Error");
+                MessageBox.Show("Internal System Error during sign");
                 throw exception;
             }
             return xmlDocument;
