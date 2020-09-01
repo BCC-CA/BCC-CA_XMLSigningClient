@@ -16,7 +16,6 @@ namespace XMLSigner.Library
         {
             httpListener = new HttpListener();
             httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
-
             _ = StartServerAsync();
             //StopServer();
         }

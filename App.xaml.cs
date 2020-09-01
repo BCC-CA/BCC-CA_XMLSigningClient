@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Windows;
 using XMLSigner.Library;
 
@@ -25,9 +26,34 @@ namespace XMLSigner
 
             RegisterApplicationToRunOnStartup();
             AddTaskbarIcon();
-            new HttpServer(5050);
+            if (CheckIfPortAvailable(5050)) {
+                new HttpServer(5050);
+            }
+            else {
+                new HttpServer(8088);
+            }
 
             base.OnStartup(e);
+        }
+
+        private bool CheckIfPortAvailable(int port)
+        {
+            // Evaluate current system tcp connections. This is the same information provided
+            // by the netstat command line application, just in .Net strongly-typed object
+            // form.  We will look through the list, and if our port we would like to use
+            // in our TcpClient is occupied, we will set isAvailable to false.
+            //Can be checked other with ways by trying opening a TCP port into that port address
+            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+
+            foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
+            {
+                if (tcpi.LocalEndPoint.Port == port)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         internal static void ShowTaskbarNotificationAfterUpload(string message) //"Signed XML File Uploaded Successfully"
