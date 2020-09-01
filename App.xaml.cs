@@ -23,13 +23,16 @@ namespace XMLSigner
                 MessageBox.Show("Already an instance is running...");
                 Current.Shutdown();
             }
+
             base.OnStartup(e);
             RegisterApplicationToRunOnStartup();
             AddTaskbarIcon();
             if (CheckIfPortAvailable(5050)) {
+                Log.Print(LogLevel.High, "Started with Port 8088");
                 new HttpServer(5050);
             }
             else {
+                Log.Print(LogLevel.High, "Started with Port 8088");
                 new HttpServer(8088);
             }
         }
@@ -43,9 +46,9 @@ namespace XMLSigner
             //Can be checked other with ways by trying opening a TCP port into that port address
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
-
             foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
             {
+                Log.Print(LogLevel._Low, "Port Checking - " + tcpi.LocalEndPoint.Port.ToString());
                 if (tcpi.LocalEndPoint.Port == port)
                 {
                     return false;

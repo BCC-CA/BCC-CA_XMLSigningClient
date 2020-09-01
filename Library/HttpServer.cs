@@ -34,6 +34,7 @@ namespace XMLSigner.Library
             }
         }
 
+        [Obsolete]
         private async Task ServerHandlerAsync()
         {
             try {
@@ -97,6 +98,7 @@ namespace XMLSigner.Library
                     sw.Write(returnJsonString);
                 }
             }
+            Log.Print(LogLevel._Low, "Response JSON - " + returnJsonString);
             return httpListenerContext;
         }
 
@@ -122,7 +124,7 @@ namespace XMLSigner.Library
             
             Tuple<XmlDocument, string> uploadFile = new Tuple<XmlDocument, string>(signedXmldDoc, downloadedFile.Item2);
             long? uploadFileID = await XmlSign.UploadFileAsync(uploadFile, token, previouSigningFileId, uploadUrl);
-
+            Log.Print(LogLevel._Low, "Uploaded File ID - " + uploadFileID);
             if (uploadFileID != null)
             {
                 App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");

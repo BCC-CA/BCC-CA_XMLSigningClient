@@ -58,6 +58,9 @@ namespace XMLSigner.Library
         [Obsolete]
         internal static async Task<long?> UploadFileAsync(Tuple<XmlDocument, string> uploadFileToupleData, string token, long? previousSignedFileId, string uploadUrl)
         {
+            Log.Print(LogLevel._Low, "Token - " + token);
+            Log.Print(LogLevel._Low, "Upload URL - " + uploadUrl);
+
             RestClient client = new RestClient(uploadUrl);
             RestRequest uploadRequest = new RestRequest("", Method.POST);
             if(previousSignedFileId != null)
@@ -380,7 +383,8 @@ namespace XMLSigner.Library
                     "Please Select a Certificate for Signing Document",
                     X509SelectionFlag.SingleSelection
                 );
-
+            Log.Print(LogLevel._Low, "Selected Certificate Subject - " + selectedCert[0].Subject);
+            Log.Print(LogLevel._Low, "Selected Certificate Issuer - " + selectedCert[0].Issuer);
             return selectedCert[0];
         }
 
