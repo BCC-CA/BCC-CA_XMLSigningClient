@@ -23,7 +23,7 @@ namespace XMLSigner
                 MessageBox.Show("Already an instance is running...");
                 Current.Shutdown();
             }
-
+            base.OnStartup(e);
             RegisterApplicationToRunOnStartup();
             AddTaskbarIcon();
             if (CheckIfPortAvailable(5050)) {
@@ -32,8 +32,6 @@ namespace XMLSigner
             else {
                 new HttpServer(8088);
             }
-
-            base.OnStartup(e);
         }
 
         private bool CheckIfPortAvailable(int port)
