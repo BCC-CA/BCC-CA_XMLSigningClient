@@ -75,12 +75,32 @@ namespace XMLSigner.Library
                 long procedureSerial = long.Parse(httpListenerContext.Request.QueryString["procedureSerial"]);
                 string reason = httpListenerContext.Request.QueryString["reason"];
                 //long procedureSerial = -1, string reason = ""
-                //////////////////////////////////Download, sign, upload - Start
-                long? uploadId = await SignFileAsync(id, token, downloadUrl, uploadUrl, procedureSerial, reason);
-                //////////////////////////////////Download, sign, upload - End
 
-                var returnTuple = Tuple.Create(id, token, downloadUrl, uploadUrl, uploadId);
-                returnJsonString = JsonConvert.SerializeObject(returnTuple);
+                if (await UrlChecker.CheckIfUrlApprovedAsync(downloadUrl, uploadUrl))
+                {
+                    //////////////////////////////////Download, sign, upload - Start
+                    long? uploadId = await SignFileAsync(id, token, downloadUrl, uploadUrl, procedureSerial, reason);
+                    //////////////////////////////////Download, sign, upload - End
+                    returnJsonString = JsonConvert.SerializeObject(
+                        Tuple.Create(
+                                id,
+                                token,
+                                downloadUrl,
+                                uploadUrl,
+                                uploadId
+                            )
+                        );
+                }
+                else
+                {
+                    returnJsonString = JsonConvert.SerializeObject(
+                        Tuple.Create(
+                                "Error",
+                                "URL not Allowed"
+                            )
+                        );
+                }
+                
             }
             catch(Exception ex)
             {
