@@ -75,8 +75,7 @@ namespace XMLSigner.Library
                 long procedureSerial = long.Parse(httpListenerContext.Request.QueryString["procedureSerial"]);
                 string reason = httpListenerContext.Request.QueryString["reason"];
                 //long procedureSerial = -1, string reason = ""
-
-                if (await UrlChecker.CheckIfUrlApprovedAsync(downloadUrl, uploadUrl))
+                if(await UrlChecker.CheckIfUrlApprovedAsync(downloadUrl, uploadUrl))
                 {
                     //////////////////////////////////Download, sign, upload - Start
                     long? uploadId = await SignFileAsync(id, token, downloadUrl, uploadUrl, procedureSerial, reason);
@@ -100,9 +99,8 @@ namespace XMLSigner.Library
                             )
                         );
                 }
-                
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (Environment.MachineName.ToString() == "Abrar")
                     returnJsonString = ex.Message.Trim();

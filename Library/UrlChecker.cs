@@ -1,9 +1,9 @@
-﻿using RestSharp;
+﻿using Newtonsoft.Json;
+using RestSharp;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using System.Xml;
 
 namespace XMLSigner.Library
 {
@@ -12,11 +12,11 @@ namespace XMLSigner.Library
         [Obsolete]
         internal static async Task<bool> CheckIfUrlApprovedAsync(string downloadUrl, string uploadUrl)
         {
-            if ((new Uri(downloadUrl, UriKind.Absolute)) != (new Uri(uploadUrl, UriKind.Absolute)))
+            if ((new Uri(downloadUrl)).Host != (new Uri(uploadUrl)).Host)
             {
                 return false;
             }
-            else if(!await CheckIfUrlExistInRepo(downloadUrl, "https://github.com/AbrarJahin/BCC-CA_XMLSigningClient/blob/master/.doc/approved_url_list.json"))
+            else if(!await CheckIfUrlExistInRepo(downloadUrl, "https://raw.githubusercontent.com/AbrarJahin/BCC-CA_XMLSigningClient/master/.doc/approved_url_list.json"))
             {
                 return false;
             }
@@ -32,34 +32,17 @@ namespace XMLSigner.Library
             RestClient client = new RestClient(apiUrl);
             RestRequest request = new RestRequest(Method.GET);
             IRestResponse response = await client.ExecuteTaskAsync(request);
-            throw new NotImplementedException();
-        }
-
-        [Obsolete]
-        internal static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(string downloadUrl)
-        {
-            RestClient client = new RestClient(downloadUrl);
-            RestRequest request = new RestRequest(Method.GET);
-            IRestResponse response = await client.ExecuteTaskAsync(request);
-
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                string description = response.Headers.ToList()
-                                .Find(x => x.Name == "Content-Disposition")
-                                .Value.ToString();
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(response.Content);
-                string fileNameContainerString = description.Split(";").ToList()
-                                                    .Find(x => x.Contains("filename="))
-                                                    .Split("=").ToList()
-                                                    .Find(x => !x.Contains("filename"))
-                                                    .Trim();
-                return new Tuple<XmlDocument, string>(doc, fileNameContainerString);
+                foreach(string url in JsonConvert.DeserializeObject<List<string>>(response.Content))
+                {
+                    if ((new Uri(urlToCheck)).Host == (new Uri(url)).Host)
+                    {
+                        return true;
+                    }
+                }
             }
-            else
-            {
-                return null;
-            }
+            return false;
         }
     }
 }
