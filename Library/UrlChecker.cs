@@ -36,7 +36,7 @@ namespace XMLSigner.Library
             {
                 foreach(string url in JsonConvert.DeserializeObject<List<string>>(response.Content))
                 {
-                    if ((new Uri(urlToCheck)).Host == (new Uri(url)).Host)
+                    if ((new Uri(urlToCheck)).Host == url)
                     {
                         return true;
                     }
