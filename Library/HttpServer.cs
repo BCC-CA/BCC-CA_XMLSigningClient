@@ -12,6 +12,8 @@ namespace XMLSigner.Library
     class HttpServer
     {
         HttpListener httpListener;
+
+        [Obsolete]
         public HttpServer(int port)
         {
             httpListener = new HttpListener();
@@ -25,6 +27,7 @@ namespace XMLSigner.Library
             httpListener.Stop();
         }
 
+        [Obsolete]
         private async Task StartServerAsync()
         {
             httpListener.Start();

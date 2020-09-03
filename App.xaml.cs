@@ -12,6 +12,7 @@ namespace XMLSigner
     public partial class App : Application
     {
         private static TaskbarIcon tbi;
+
         protected override void OnStartup(StartupEventArgs e)
         {
             Process proc = Process.GetCurrentProcess();
@@ -29,11 +30,15 @@ namespace XMLSigner
             AddTaskbarIcon();
             if (CheckIfPortAvailable(5050)) {
                 Log.Print(LogLevel.High, "Started with Port 8088");
+#pragma warning disable CS0612 // Type or member is obsolete
                 new HttpServer(5050);
+#pragma warning restore CS0612 // Type or member is obsolete
             }
             else {
                 Log.Print(LogLevel.High, "Started with Port 8088");
+#pragma warning disable CS0612 // Type or member is obsolete
                 new HttpServer(8088);
+#pragma warning restore CS0612 // Type or member is obsolete
             }
         }
 
