@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Threading;
 using System.Windows;
 using XMLSigner.Library;
 
@@ -19,25 +20,34 @@ namespace XMLSigner
             int count = Process.GetProcesses().Where(p =>
                 p.ProcessName == proc.ProcessName).Count();
 
-            if (count > 1)
+            if(count > 1)
             {
                 MessageBox.Show("Already an instance is running...");
                 Current.Shutdown();
             }
-
+            AddTaskbarIcon();
             base.OnStartup(e);
             RegisterApplicationToRunOnStartup();
-            AddTaskbarIcon();
-            if (CheckIfPortAvailable(5050)) {
+
+            StartServer();
+        }
+
+        private void StartServer()
+        {
+            if (CheckIfPortAvailable(5050))
+            {
                 Log.Print(LogLevel.High, "Started with Port 8088");
 #pragma warning disable CS0612 // Type or member is obsolete
-                new HttpServer(5050);
+                ThreadPool.QueueUserWorkItem(_ => new HttpServer(5050));
+                //new HttpServer(5050);
 #pragma warning restore CS0612 // Type or member is obsolete
             }
-            else {
+            else
+            {
                 Log.Print(LogLevel.High, "Started with Port 8088");
 #pragma warning disable CS0612 // Type or member is obsolete
-                new HttpServer(8088);
+                //new HttpServer(8088);
+                ThreadPool.QueueUserWorkItem(_ => new HttpServer(8088));
 #pragma warning restore CS0612 // Type or member is obsolete
             }
         }
@@ -73,7 +83,7 @@ namespace XMLSigner
             tbi = new TaskbarIcon();
             tbi.Icon = XmlSign.BytesToIcon(XMLSigner.Properties.Resources.Logo);
             tbi.ToolTipText = "BCC-CA XML Signing Client";
-            //tbi.Visibility = Visibility.Visible;
+            tbi.Visibility = Visibility.Visible;
             tbi.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);
         }
 

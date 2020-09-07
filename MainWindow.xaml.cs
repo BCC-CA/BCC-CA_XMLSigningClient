@@ -28,6 +28,10 @@ namespace XMLSigner
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
         {
+            //Application.Current.Shutdown();
+            //System.Windows.Forms.Application.Restart();
+
+
             if (Environment.GetCommandLineArgs().Length > 1)    //Because 0 index is app runing location
             {
                 //Do not Open WPF UI, Instead do manipulate based
