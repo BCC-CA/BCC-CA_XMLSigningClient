@@ -36,7 +36,7 @@ namespace XMLSigner
         {
             if (CheckIfPortAvailable(5050))
             {
-                Log.Print(LogLevel.High, "Started with Port 8088");
+                Log.Print(LogLevel.High, "Started with Port 5050");
 #pragma warning disable CS0612 // Type or member is obsolete
                 ThreadPool.QueueUserWorkItem(_ => new HttpServer(5050));
                 //new HttpServer(5050);
@@ -80,7 +80,7 @@ namespace XMLSigner
 
         private void AddTaskbarIcon()
         {
-            tbi = new TaskbarIcon();
+            tbi = (TaskbarIcon)FindResource("NotifyIcon");
             tbi.Icon = XmlSign.BytesToIcon(XMLSigner.Properties.Resources.Logo);
             tbi.ToolTipText = "BCC-CA XML Signing Client";
             tbi.Visibility = Visibility.Visible;
@@ -99,5 +99,19 @@ namespace XMLSigner
                 MessageBox.Show(ex.ToString(), "Error Registering Application with Browser", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
+
+
+        void radioButton_CustomTSASelect(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Selected");
+        }
+
+        void radioButton_CustomTSAUnSelect(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("UnselectedK");
+        }
+        
     }
 }
