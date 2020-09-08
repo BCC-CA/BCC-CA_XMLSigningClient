@@ -96,7 +96,7 @@ namespace XMLSigner
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "Error Registering Application with Browser", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.ToString(), "Error - Application should be launched as Administrator", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -19,7 +19,6 @@ namespace XMLSigner.Library
             httpListener = new HttpListener();
             httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
             _ = StartServerAsync();
-            //StopServer();
         }
 
         internal void StopServer()
@@ -129,7 +128,18 @@ namespace XMLSigner.Library
         private async Task<long?> SignFileAsync(long previouSigningFileId, string token, string downloadUrl, string uploadUrl, long procedureSerial = -1, string reason = "")
         {
             Tuple<XmlDocument, string> downloadedFile = await XmlSign.DownloadFileWithIdAsync(downloadUrl);
+            /*
+            Tuple<XmlDocument, string> downloadedFile;
+            using (LoadingDialog inputDialog = new LoadingDialog("Downloading File..."))
+            {
+                downloadedFile = await XmlSign.DownloadFileWithIdAsync(downloadUrl);
 
+                if (downloadedFile == null)
+                {
+                    return null;
+                }
+            }
+            */
             //Open Dialog Popup
             if (downloadedFile == null)
             {

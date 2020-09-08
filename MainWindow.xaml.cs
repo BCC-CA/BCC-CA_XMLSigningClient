@@ -16,8 +16,9 @@ namespace XMLSigner
         public MainWindow()
         {
             //This part is used for initializing element so that popup is loaded first time
-            using (WysiwysDialog inputDialog = new WysiwysDialog(""))
-            { }
+            using (WysiwysDialog inputDialog = new WysiwysDialog("")) { }
+            //using (LoadingDialog loadingDialog = new LoadingDialog("Opening App for the first time")) { }
+
             //Add waight during download - https://github.com/lim0513/ModernMessageBoxLibForWPF/blob/master/DemoProj/MainWindow.xaml.cs
             //ActivateNotifyIcon();
 
