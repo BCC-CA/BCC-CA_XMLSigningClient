@@ -20,35 +20,24 @@ namespace XMLSigner
             int count = Process.GetProcesses().Where(p =>
                 p.ProcessName == proc.ProcessName).Count();
 
-            if(count > 1)
+            if (count > 1)
             {
                 MessageBox.Show("Already an instance is running...");
                 Current.Shutdown();
             }
-            AddTaskbarIcon();
+
             base.OnStartup(e);
             RegisterApplicationToRunOnStartup();
-
-            StartServer();
-        }
-
-        private void StartServer()
-        {
-            if (CheckIfPortAvailable(5050))
-            {
-                Log.Print(LogLevel.High, "Started with Port 5050");
-#pragma warning disable CS0612 // Type or member is obsolete
-                ThreadPool.QueueUserWorkItem(_ => new HttpServer(5050));
-                //new HttpServer(5050);
-#pragma warning restore CS0612 // Type or member is obsolete
-            }
-            else
-            {
+            AddTaskbarIcon();
+            if (CheckIfPortAvailable(5050)) {
                 Log.Print(LogLevel.High, "Started with Port 8088");
-#pragma warning disable CS0612 // Type or member is obsolete
-                //new HttpServer(8088);
-                ThreadPool.QueueUserWorkItem(_ => new HttpServer(8088));
-#pragma warning restore CS0612 // Type or member is obsolete
+                //ThreadPool.QueueUserWorkItem(_ => new HttpServer(5050));
+                new HttpServer(5050);
+            }
+            else {
+                Log.Print(LogLevel.High, "Started with Port 8088");
+                //ThreadPool.QueueUserWorkItem(_ => new HttpServer(8088));
+                new HttpServer(8088);
             }
         }
 
@@ -80,10 +69,10 @@ namespace XMLSigner
 
         private void AddTaskbarIcon()
         {
-            tbi = (TaskbarIcon)FindResource("NotifyIcon");
+            tbi = new TaskbarIcon();
             tbi.Icon = XmlSign.BytesToIcon(XMLSigner.Properties.Resources.Logo);
             tbi.ToolTipText = "BCC-CA XML Signing Client";
-            tbi.Visibility = Visibility.Visible;
+            //tbi.Visibility = Visibility.Visible;
             tbi.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);
         }
 
@@ -96,22 +85,8 @@ namespace XMLSigner
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "Error - Application should be launched as Administrator", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.ToString(), "Error Registering Application with Browser", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
-
-
-        void radioButton_CustomTSASelect(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Selected");
-        }
-
-        void radioButton_CustomTSAUnSelect(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("UnselectedK");
-        }
-        
     }
 }
