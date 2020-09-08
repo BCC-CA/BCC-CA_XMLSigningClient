@@ -37,6 +37,7 @@ namespace XMLSigner
         {
             int port = NetworkPort.CheckIfPortAvailable(5050) ? 5050:8088;
             //ThreadPool.QueueUserWorkItem(_ => new HttpServer(port));
+            //Task.Run(() => new HttpServer(port));
             new HttpServer(port);
         }
 
