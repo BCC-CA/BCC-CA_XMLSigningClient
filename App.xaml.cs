@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Threading;
 using System.Windows;
 using XMLSigner.Library;
 
@@ -30,15 +31,13 @@ namespace XMLSigner
             AddTaskbarIcon();
             if (CheckIfPortAvailable(5050)) {
                 Log.Print(LogLevel.High, "Started with Port 8088");
-#pragma warning disable CS0612 // Type or member is obsolete
+                //ThreadPool.QueueUserWorkItem(_ => new HttpServer(5050));
                 new HttpServer(5050);
-#pragma warning restore CS0612 // Type or member is obsolete
             }
             else {
                 Log.Print(LogLevel.High, "Started with Port 8088");
-#pragma warning disable CS0612 // Type or member is obsolete
+                //ThreadPool.QueueUserWorkItem(_ => new HttpServer(8088));
                 new HttpServer(8088);
-#pragma warning restore CS0612 // Type or member is obsolete
             }
         }
 
