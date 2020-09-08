@@ -2,8 +2,62 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:XMLSigner"
+             xmlns:tb="http://www.hardcodet.net/taskbar"
+             xmlns:adorners="http://gu.se/Adorners"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <!-- Globally declared notify icon -->
+        <tb:TaskbarIcon x:Key="NotifyIcon"
+                          LeftClickCommandParameter="Single left mouse button click."
+                          MenuActivation="LeftOrRightClick"
+                          PopupActivation="DoubleClick"
+                        >
+            <!--
+    We can use arbitrary UI elements as Popups.
+    Popups stay open if the user moves away from the tray area
+  -->
+            <tb:TaskbarIcon.TrayPopup>
+                <Border
+                  Background="White"
+                  BorderBrush="Orange"
+                  BorderThickness="2"
+                  CornerRadius="4"
+                  Width="160"
+                  Height="40">
+                    <Button Content="Click Me!"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                </Border>
+            </tb:TaskbarIcon.TrayPopup>
+
+            <!-- Set a simple context menu  -->
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Select Port" >
+                        <RadioButton Content="5050" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="Port"/>
+                        <RadioButton Content="8088" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="Port"/>
+                        <!--Background="Green" Foreground="Red"-->
+                    </MenuItem>
+                    <MenuItem Header="Select TSA" >
+                        <RadioButton Content="5050" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
+                        <RadioButton Content="8088" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
+                        <RadioButton Content="5050" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
+                        <RadioButton Content="8088" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
+                        <RadioButton Content="Custom" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA" Checked="radioButton_CustomTSASelect" Unchecked="radioButton_CustomTSAUnSelect"/>
+                        <TextBox IsEnabled="False" MinWidth="200" HorizontalAlignment="Center" x:Name="TSA" adorners:Watermark.Text="Custom TSA"/>
+                        <Button x:Name="Update"
+                                Content="Update TSA"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
+                            <!--Click="DrawCircleButton_Click"-->
+                            
+                        </Button>
+                    </MenuItem>
+                    <MenuItem Header="Restart" />
+                    <MenuItem Header="Exit" />
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+
+        </tb:TaskbarIcon>
     </Application.Resources>
 </Application>

@@ -16,8 +16,9 @@ namespace XMLSigner
         public MainWindow()
         {
             //This part is used for initializing element so that popup is loaded first time
-            using (WysiwysDialog inputDialog = new WysiwysDialog(""))
-            { }
+            using (WysiwysDialog inputDialog = new WysiwysDialog("")) { }
+            //using (LoadingDialog loadingDialog = new LoadingDialog("Opening App for the first time")) { }
+
             //Add waight during download - https://github.com/lim0513/ModernMessageBoxLibForWPF/blob/master/DemoProj/MainWindow.xaml.cs
             //ActivateNotifyIcon();
 
@@ -28,6 +29,10 @@ namespace XMLSigner
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
         {
+            //Application.Current.Shutdown();
+            //System.Windows.Forms.Application.Restart();
+
+
             if (Environment.GetCommandLineArgs().Length > 1)    //Because 0 index is app runing location
             {
                 //Do not Open WPF UI, Instead do manipulate based
