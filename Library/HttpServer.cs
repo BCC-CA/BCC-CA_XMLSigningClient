@@ -16,6 +16,7 @@ namespace XMLSigner.Library
         [Obsolete]
         public HttpServer(int port)
         {
+            Log.Print(LogLevel.High, "Started with Port " + port);
             httpListener = new HttpListener();
             httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
             _ = StartServerAsync();

@@ -3,8 +3,6 @@ using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Threading;
 using System.Windows;
 using XMLSigner.Library;
 
@@ -29,47 +27,17 @@ namespace XMLSigner
             base.OnStartup(e);
             RegisterApplicationToRunOnStartup();
 
+#pragma warning disable CS0612 // Type or member is obsolete
             StartServer();
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
+        [Obsolete]
         private void StartServer()
         {
-            if (CheckIfPortAvailable(5050))
-            {
-                Log.Print(LogLevel.High, "Started with Port 5050");
-#pragma warning disable CS0612 // Type or member is obsolete
-                ThreadPool.QueueUserWorkItem(_ => new HttpServer(5050));
-                //new HttpServer(5050);
-#pragma warning restore CS0612 // Type or member is obsolete
-            }
-            else
-            {
-                Log.Print(LogLevel.High, "Started with Port 8088");
-#pragma warning disable CS0612 // Type or member is obsolete
-                //new HttpServer(8088);
-                ThreadPool.QueueUserWorkItem(_ => new HttpServer(8088));
-#pragma warning restore CS0612 // Type or member is obsolete
-            }
-        }
-
-        private bool CheckIfPortAvailable(int port)
-        {
-            // Evaluate current system tcp connections. This is the same information provided
-            // by the netstat command line application, just in .Net strongly-typed object
-            // form.  We will look through the list, and if our port we would like to use
-            // in our TcpClient is occupied, we will set isAvailable to false.
-            //Can be checked other with ways by trying opening a TCP port into that port address
-            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
-            foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
-            {
-                Log.Print(LogLevel._Low, "Port Checking - " + tcpi.LocalEndPoint.Port.ToString());
-                if (tcpi.LocalEndPoint.Port == port)
-                {
-                    return false;
-                }
-            }
-            return true;
+            int port = NetworkPort.CheckIfPortAvailable(5050) ? 5050:8088;
+            //ThreadPool.QueueUserWorkItem(_ => new HttpServer(port));
+            new HttpServer(port);
         }
 
         internal static void ShowTaskbarNotificationAfterUpload(string message) //"Signed XML File Uploaded Successfully"
@@ -96,12 +64,11 @@ namespace XMLSigner
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "Error - Application should be launched as Administrator", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.ToString(), "Error - Application should be launched as Administrator, please run again.", MessageBoxButton.OK, MessageBoxImage.Error);
+                Current.Shutdown();
+                Environment.Exit(0);
             }
         }
-
-
-
 
         void radioButton_CustomTSASelect(object sender, RoutedEventArgs e)
         {
@@ -110,8 +77,7 @@ namespace XMLSigner
 
         void radioButton_CustomTSAUnSelect(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("UnselectedK");
+            MessageBox.Show("Un-Selected");
         }
-        
     }
 }
