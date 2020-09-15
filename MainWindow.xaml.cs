@@ -24,7 +24,7 @@ namespace XMLSigner
 
             InitializeComponent();
             this.Hide();
-            this.Close();
+            //this.Close();
         }
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
