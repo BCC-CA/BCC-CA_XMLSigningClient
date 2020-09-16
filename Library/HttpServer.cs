@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Windows.Threading;
+using System.Windows;
 using System.Xml;
 using XMLSigner.Dialog.WysiwysDialog;
 
@@ -161,7 +161,7 @@ namespace XMLSigner.Library
             }
             try {
                 bool isRejected = false;
-                await System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                      using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
                      {
@@ -190,7 +190,7 @@ namespace XMLSigner.Library
             {
                 if (uploadFileID != null)
                 {
-                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");
                     }));
