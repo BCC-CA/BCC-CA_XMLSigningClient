@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Threading;
 using System.Xml;
 using XMLSigner.Dialog.WysiwysDialog;
 
@@ -26,7 +27,7 @@ namespace XMLSigner.Library
         }
 
         [Obsolete]
-        internal HttpServer(int port, bool isThreaded = false)
+        internal HttpServer(int port, bool isThreaded = true)
         {
             if (_httpListener != null)  //Making things singleton
             {
@@ -159,32 +160,49 @@ namespace XMLSigner.Library
                 return null;
             }
             try {
-                using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
+                bool isRejected = false;
+                await System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    if (inputDialog.ShowDialog() == false)
-                    {
-                        return null;
-                    }
+                     using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
+                     {
+                         if (inputDialog.ShowDialog() == false)
+                         {
+                             isRejected = true;
+                         }
+                     }
+                }));
+                if(isRejected)
+                {
+                    return null;
                 }
             }
             catch(Exception ex)
             {
                 Log.Print(LogLevel.Critical, ex.ToString());
             }
-            
 
             XmlDocument signedXmldDoc = XmlSign.GetSignedXMLDocument(downloadedFile.Item1, XmlSign.GetX509Certificate2FromDongle(), procedureSerial, reason);
             
             Tuple<XmlDocument, string> uploadFile = new Tuple<XmlDocument, string>(signedXmldDoc, downloadedFile.Item2);
             long? uploadFileID = await XmlSign.UploadFileAsync(uploadFile, token, previouSigningFileId, uploadUrl);
             Log.Print(LogLevel._Low, "Uploaded File ID - " + uploadFileID);
-            if (uploadFileID != null)
+            try
             {
-                App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");
+                if (uploadFileID != null)
+                {
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");
+                    }));
+                }
+            }
+            catch(Exception ex)
+            {
+                Log.Print(LogLevel.Critical, ex.Message.ToString());
             }
             return uploadFileID;
             /*
-            //Verify
+            //Verify - No Need
             bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmldDoc);
             if (ifSignVerified == true)
             {
