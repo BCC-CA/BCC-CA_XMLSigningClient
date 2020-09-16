@@ -67,5 +67,11 @@ namespace XMLSigner
         {
             MessageBox.Show("Un-Selected");
         }
+
+        private void ExitApp_Click(object sender, RoutedEventArgs e)
+        {
+            Current.Shutdown();
+            Environment.Exit(0);
+        }
     }
 }

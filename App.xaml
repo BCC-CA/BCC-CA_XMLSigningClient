@@ -54,7 +54,7 @@
                         </Button>
                     </MenuItem>
                     <MenuItem Header="Restart" />
-                    <MenuItem Header="Exit" />
+                    <MenuItem Header="Exit" Click="ExitApp_Click" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
 
