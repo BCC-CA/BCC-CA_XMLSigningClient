@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Xml;
 using XMLSigner.Dialog.WysiwysDialog;
 
@@ -11,40 +12,59 @@ namespace XMLSigner.Library
 {
     class HttpServer
     {
-        HttpListener httpListener;
-
-        public HttpServer(int port)
-        {
-            Log.Print(LogLevel.High, "Started with Port " + port);
-            httpListener = new HttpListener();
-            httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
-#pragma warning disable CS0612 // Type or member is obsolete
-            _ = StartServerAsync();
-#pragma warning restore CS0612 // Type or member is obsolete
-
-            //StopServer();
-        }
-
-        internal void StopServer()
-        {
-            httpListener.Stop();
-        }
+        private static HttpListener _httpListener;
+        private static readonly Timer _timer = new Timer(100);
 
         [Obsolete]
-        private async Task StartServerAsync()
+        private async void StartNonThreadedServerAsync()
         {
-            httpListener.Start();
-            while(true)
+            _httpListener.Start();
+            while (true)
             {
                 await ServerHandlerAsync();
             }
         }
 
         [Obsolete]
+        internal HttpServer(int port, bool isThreaded = false)
+        {
+            if (_httpListener != null)  //Making things singleton
+            {
+                return;
+                //throw new Exception("Already Initiated");
+            }
+            _httpListener = new HttpListener();
+            Log.Print(LogLevel.High, "Started with Port " + port);
+            _httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
+
+            if(isThreaded)
+            {
+                _timer.Elapsed += async (sender, e) => await ServerHandlerAsync();
+                StartServer();
+            }
+            else
+            {
+                StartNonThreadedServerAsync();
+            }
+        }
+
+        internal void StopServer()
+        {
+            _timer.Stop();
+            _httpListener.Stop();
+        }
+
+        internal void StartServer()
+        {
+            _httpListener.Start();
+            _timer.Start();
+        }
+
+        [Obsolete]
         private async Task ServerHandlerAsync()
         {
             try {
-                HttpListenerContext httpListenerContext = httpListener.GetContext();
+                HttpListenerContext httpListenerContext = _httpListener.GetContext();
                 httpListenerContext.Response.ContentType = "application/json";
 
                 httpListenerContext.Response.AppendHeader("Access-Control-Allow-Origin", "*");
@@ -138,13 +158,20 @@ namespace XMLSigner.Library
             {
                 return null;
             }
-            using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
-            {
-                if (inputDialog.ShowDialog() == false)
+            try {
+                using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
                 {
-                    return null;
+                    if (inputDialog.ShowDialog() == false)
+                    {
+                        return null;
+                    }
                 }
             }
+            catch(Exception ex)
+            {
+                Log.Print(LogLevel.Critical, ex.ToString());
+            }
+            
 
             XmlDocument signedXmldDoc = XmlSign.GetSignedXMLDocument(downloadedFile.Item1, XmlSign.GetX509Certificate2FromDongle(), procedureSerial, reason);
             
