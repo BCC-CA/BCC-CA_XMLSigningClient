@@ -34,7 +34,8 @@ namespace XMLSigner
         }
         public MainWindow()
         {
-            try {
+            try
+            {
                 //This part is used for initializing element so that popup is loaded first time
                 using (WysiwysDialog inputDialog = new WysiwysDialog("")) { }
                 //using (LoadingDialog loadingDialog = new LoadingDialog("Opening App for the first time")) { }
@@ -46,7 +47,6 @@ namespace XMLSigner
             {
                 Log.Print(LogLevel.Critical, ex.ToString());
             }
-
             InitializeComponent();
             this.Hide();
 
