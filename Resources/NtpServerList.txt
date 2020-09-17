@@ -1,0 +1,11 @@
+time.windows.com
+time.google.com
+time.cloudflare.com
+time.facebook.com
+time.apple.com
+time-a-g.nist.gov
+ntp1.stratum1.ru
+ntp.ru
+ntp.gsu.edu
+ntp.nsu.ru
+ntp.nict.jp

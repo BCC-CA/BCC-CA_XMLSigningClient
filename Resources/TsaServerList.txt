@@ -1,0 +1,16 @@
+http://timestamp.globalsign.com/scripts/timstamp.dll
+https://timestamp.geotrust.com/tsa
+http://timestamp.comodoca.com/rfc3161
+http://timestamp.wosign.com
+http://tsa.startssl.com/rfc3161
+http://time.certum.pl
+http://timestamp.digicert.com
+https://freetsa.org
+http://dse200.ncipher.com/TSS/HttpTspServer
+http://tsa.safecreative.org
+http://zeitstempel.dfn.de
+https://ca.signfiles.com/tsa/get.aspx
+http://services.globaltrustfinder.com/adss/tsa
+https://tsp.iaik.tugraz.at/tsp/TspRequest
+http://timestamp.apple.com/ts01
+http://timestamp.entrust.net/TSS/RFC3161sha2TS
