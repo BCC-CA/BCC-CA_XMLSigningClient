@@ -33,14 +33,16 @@
             <!-- Set a simple context menu  -->
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Select Port" >
-                        <RadioButton Content="5050" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="Port"/>
-                        <RadioButton Content="8088" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="Port"/>
+                    <MenuItem Header="Select Port" Click="PortSelect_Click">
+                        <TreeViewItem Header="Runnning Port"></TreeViewItem>
+                        <RadioButton Content="5050" x:Name="port1" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="Port" Checked="PortSelect_Click"/>
+                        <RadioButton Content="8088" x:Name="port2" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="Port" Checked="PortSelect_Click"/>
                         <!--Background="Green" Foreground="Red"-->
                     </MenuItem>
                     <MenuItem Header="Select TSA" >
                         <RadioButton Content="5050" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
                         <RadioButton Content="8088" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
+                        
                         <RadioButton Content="5050" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
                         <RadioButton Content="8088" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA"/>
                         <RadioButton Content="Custom" HorizontalAlignment="Left" VerticalAlignment="Center" GroupName="TSA" Checked="radioButton_CustomTSASelect" Unchecked="radioButton_CustomTSAUnSelect"/>
@@ -53,7 +55,7 @@
                             
                         </Button>
                     </MenuItem>
-                    <MenuItem Header="Restart" />
+                    <MenuItem Header="Restart"  Click="RestartApp_Click"/>
                     <MenuItem Header="Exit" Click="ExitApp_Click" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>

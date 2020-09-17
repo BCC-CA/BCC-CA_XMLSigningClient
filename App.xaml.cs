@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using XMLSigner.Library;
 
 namespace XMLSigner
@@ -72,6 +73,24 @@ namespace XMLSigner
         {
             Current.Shutdown();
             Environment.Exit(0);
+        }
+
+        private void RestartApp_Click(object sender, RoutedEventArgs e)
+        {
+            HttpServer.RestartServer();
+        }
+
+        private void PortSelect_Click(object sender, RoutedEventArgs e)
+        {
+            switch(((RadioButton)sender).Name)
+            {
+                case "port1": //5050
+                    MessageBox.Show("5050");
+                    break;
+                case "port2": //8088
+                    MessageBox.Show("8088");
+                    break;
+            }
         }
     }
 }

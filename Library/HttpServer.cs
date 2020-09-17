@@ -49,13 +49,19 @@ namespace XMLSigner.Library
             }
         }
 
-        internal void StopServer()
+        internal static void RestartServer()
+        {
+            StopServer();
+            StartServer();
+        }
+
+        internal static void StopServer()
         {
             _timer.Stop();
             _httpListener.Stop();
         }
 
-        internal void StartServer()
+        internal static void StartServer()
         {
             _httpListener.Start();
             _timer.Start();
