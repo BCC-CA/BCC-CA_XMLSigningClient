@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Hardcodet.Wpf.TaskbarNotification;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net;
@@ -73,7 +74,7 @@ namespace XMLSigner.Library
             _httpListener.Start();
             await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                App.ShowTaskbarNotificationAfterUpload("Server Started in port: "+ _portNo);
+                App.ShowTaskbarNotificationAfterUpload("Server Started in port: "+ _portNo, BalloonIcon.Info);
             }));
             _timer.Start();
         }

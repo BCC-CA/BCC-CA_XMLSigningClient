@@ -29,10 +29,10 @@ namespace XMLSigner
             RegisterApplicationToRunOnStartup();
         }
 
-        internal static void ShowTaskbarNotificationAfterUpload(string message) //"Signed XML File Uploaded Successfully"
+        internal static void ShowTaskbarNotificationAfterUpload(string message, BalloonIcon icon = BalloonIcon.Warning) //"Signed XML File Uploaded Successfully"
         {
             _taskBarIcon.ToolTipText = "BCC-CA XML Signing Client";
-            _taskBarIcon.ShowBalloonTip("XML Signing Client", message, BalloonIcon.Warning);
+            _taskBarIcon.ShowBalloonTip("XML Signing Client", message, icon);
         }
 
         private void AddTaskbarIcon()
@@ -41,7 +41,7 @@ namespace XMLSigner
             _taskBarIcon.Icon = XmlSign.BytesToIcon(XMLSigner.Properties.Resources.Logo);
             _taskBarIcon.ToolTipText = "BCC-CA XML Signing Client";
             _taskBarIcon.Visibility = Visibility.Visible;
-            _taskBarIcon.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);
+            //_taskBarIcon.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);
         }
 
         private void RegisterApplicationToRunOnStartup()
