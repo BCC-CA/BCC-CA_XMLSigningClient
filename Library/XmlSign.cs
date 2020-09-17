@@ -5,7 +5,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
@@ -37,12 +36,16 @@ namespace XMLSigner.Library
 
             if(response.StatusCode == HttpStatusCode.OK)
             {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 string description = response.Headers.ToList()
                                 .Find(x => x.Name == "Content-Disposition")
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                                 .Value.ToString();
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(response.Content);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 string fileNameContainerString = description.Split(";").ToList()
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                                                     .Find(x => x.Contains("filename="))
                                                     .Split("=").ToList()
                                                     .Find(x => !x.Contains("filename"))
@@ -415,7 +418,9 @@ namespace XMLSigner.Library
             XmlNodeList nodeList = xmlDocument.GetElementsByTagName("Signature");
             foreach (XmlNode node in nodeList)
             {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 node.ParentNode.RemoveChild(node);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
             return xmlDocument;
         }

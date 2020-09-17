@@ -8,8 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace XMLSigner.Properties
-{
+namespace XMLSigner.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -84,15 +86,6 @@ namespace XMLSigner.Properties
         internal static string NtpServerList {
             get {
                 return ResourceManager.GetString("NtpServerList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to time.windows.com.
-        /// </summary>
-        internal static string NtpServerUrl {
-            get {
-                return ResourceManager.GetString("NtpServerUrl", resourceCulture);
             }
         }
         

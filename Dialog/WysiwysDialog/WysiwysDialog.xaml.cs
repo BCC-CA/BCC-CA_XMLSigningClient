@@ -30,7 +30,9 @@ namespace XMLSigner.Dialog.WysiwysDialog
             certificateList = XmlSign.GetAllSign(tempXml);
             realDocument = XmlSign.GetRealXmlDocument(tempXml);
             XmlDataProvider dataProvider = this.FindResource("xmlDataProvider") as XmlDataProvider;
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             dataProvider.Document = realDocument;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             Signature.ItemsSource = certificateList;
         }
 

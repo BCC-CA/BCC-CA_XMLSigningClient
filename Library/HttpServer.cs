@@ -15,6 +15,7 @@ namespace XMLSigner.Library
     {
         private static HttpListener _httpListener;
         private static readonly Timer _timer = new Timer(100);
+        private static int _portNo;
 
         [Obsolete]
         private async void StartNonThreadedServerAsync()
@@ -29,6 +30,7 @@ namespace XMLSigner.Library
         [Obsolete]
         internal HttpServer(int port, bool isThreaded = true)
         {
+            _portNo = port;
             if (_httpListener != null)  //Making things singleton
             {
                 return;
@@ -41,7 +43,7 @@ namespace XMLSigner.Library
             if(isThreaded)
             {
                 _timer.Elapsed += async (sender, e) => await ServerHandlerAsync();
-                StartServer();
+                _ = StartServerAsync();
             }
             else
             {
@@ -52,7 +54,7 @@ namespace XMLSigner.Library
         internal static void RestartServer()
         {
             StopServer();
-            StartServer();
+            _ = StartServerAsync();
         }
 
         internal static void StopServer()
@@ -61,9 +63,18 @@ namespace XMLSigner.Library
             _httpListener.Stop();
         }
 
-        internal static void StartServer()
+        internal static async Task StartServerAsync()
         {
+            if(!Tsa.CheckIfLocalTimeIsOk())
+            {
+                MessageBox.Show("Please update your PC time to server time before signing!");
+                System.Diagnostics.Process.Start("https://answers.microsoft.com/en-us/windows/forum/windows_10-other_settings/how-to-force-windows-10-time-to-synch-with-a-time/20f3b546-af38-42fb-a2d0-d4df13cc8f43");
+            }
             _httpListener.Start();
+            await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                App.ShowTaskbarNotificationAfterUpload("Server Started in port: "+ _portNo);
+            }));
             _timer.Start();
         }
 

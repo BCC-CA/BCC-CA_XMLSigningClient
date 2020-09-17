@@ -34,7 +34,9 @@ namespace XMLSigner.Library
                     sw.WriteLine(
                            DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffffffK")
                            + "\t" + level
-                           + "\t" + (new StackTrace().GetFrame(1).GetMethod()).ReflectedType.Name
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                           + "\t" + new StackTrace().GetFrame(1).GetMethod().ReflectedType.Name
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                            + "\t" + ":" + "\t" + message
                        //+ Environment.NewLine
                        );
