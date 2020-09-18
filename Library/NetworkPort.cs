@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.NetworkInformation;
 
 namespace XMLSigner.Library
@@ -13,7 +12,7 @@ namespace XMLSigner.Library
             GetAllUsedPorts();
         }
 
-        internal static HashSet<int> GetAllUsedPorts()
+        private static HashSet<int> GetAllUsedPorts()
         {
             ports.Clear();
             ports.TrimExcess();

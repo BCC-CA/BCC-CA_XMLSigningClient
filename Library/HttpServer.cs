@@ -66,11 +66,13 @@ namespace XMLSigner.Library
 
         internal static async Task StartServerAsync()
         {
+            /*
             if(!Tsa.CheckIfLocalTimeIsOk())
             {
                 MessageBox.Show("Please update your PC time to server time before signing!");
                 System.Diagnostics.Process.Start("https://answers.microsoft.com/en-us/windows/forum/windows_10-other_settings/how-to-force-windows-10-time-to-synch-with-a-time/20f3b546-af38-42fb-a2d0-d4df13cc8f43");
             }
+            */
             _httpListener.Start();
             await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
