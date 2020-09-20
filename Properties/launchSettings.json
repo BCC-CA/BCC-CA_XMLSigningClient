@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "XMLSigner": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

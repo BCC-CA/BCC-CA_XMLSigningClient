@@ -1,11 +1,8 @@
 ﻿using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
@@ -20,14 +17,6 @@ namespace XMLSigner.Library
 {
     class XmlSign
     {
-        internal static Icon BytesToIcon(byte[] bytes)
-        {
-            using (MemoryStream ms = new MemoryStream(bytes))
-            {
-                return new Icon(ms);
-            }
-        }
-
         [Obsolete]
         internal static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(string downloadUrl)
         {
@@ -37,12 +26,16 @@ namespace XMLSigner.Library
 
             if(response.StatusCode == HttpStatusCode.OK)
             {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 string description = response.Headers.ToList()
                                 .Find(x => x.Name == "Content-Disposition")
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                                 .Value.ToString();
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(response.Content);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 string fileNameContainerString = description.Split(";").ToList()
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                                                     .Find(x => x.Contains("filename="))
                                                     .Split("=").ToList()
                                                     .Find(x => !x.Contains("filename"))
@@ -206,7 +199,7 @@ namespace XMLSigner.Library
             */
 
             //Check if local time is OK
-            if(!CheckIfLocalTimeIsOk()) {
+            if(!Tsa.CheckIfLocalTimeIsOk()) {
                 MessageBox.Show("PC Time is need to be updated before sign !");
                 return null;    //Last Sign Not Verified
             }
@@ -388,61 +381,6 @@ namespace XMLSigner.Library
             return selectedCert[0];
         }
 
-        internal static bool CheckForInternetConnection()
-        {
-            try
-            {
-                using (var client = new WebClient())
-                using (client.OpenRead("http://google.com/generate_204"))
-                    return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static DateTime GetNetworkTime()
-        {
-#if DEBUG
-            if (!CheckForInternetConnection())
-            {
-                return DateTime.UtcNow;
-            }
-#endif
-            //Should check time server by certificate, not added now
-            byte[] ntpData = new byte[48];
-            ntpData[0] = 0x1B; //LeapIndicator = 0 (no warning), VersionNum = 3 (IPv4 only), Mode = 3 (Client Mode)
-
-            IPAddress[] addresses = Dns.GetHostEntry(Properties.Resources.NtpServerUrl).AddressList;
-            IPEndPoint ipEndPoint = new IPEndPoint(addresses[0], 123);
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-            socket.Connect(ipEndPoint);
-            socket.Send(ntpData);
-            socket.Receive(ntpData);
-            socket.Close();
-
-            ulong intPart = (ulong)ntpData[40] << 24 | (ulong)ntpData[41] << 16 | (ulong)ntpData[42] << 8 | (ulong)ntpData[43];
-            ulong fractPart = (ulong)ntpData[44] << 24 | (ulong)ntpData[45] << 16 | (ulong)ntpData[46] << 8 | (ulong)ntpData[47];
-
-            ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
-            DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
-
-            return networkDateTime;
-        }
-
-        private static bool CheckIfLocalTimeIsOk(int allowedMaxMinuiteDiff = 5)
-        {
-            DateTime ntpTime = GetNetworkTime();
-            DateTime localTime = DateTime.UtcNow;
-            TimeSpan timeDiff = ntpTime - localTime;
-            if (Math.Abs(timeDiff.TotalMinutes) <= allowedMaxMinuiteDiff)
-                return true;
-            else
-                return false;
-        }
-
         internal static List<Certificate> GetAllSign(XmlDocument xmlDocument)
         {
             if (!CheckIfDocumentPreviouslySigned(xmlDocument))
@@ -470,7 +408,9 @@ namespace XMLSigner.Library
             XmlNodeList nodeList = xmlDocument.GetElementsByTagName("Signature");
             foreach (XmlNode node in nodeList)
             {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 node.ParentNode.RemoveChild(node);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
             return xmlDocument;
         }

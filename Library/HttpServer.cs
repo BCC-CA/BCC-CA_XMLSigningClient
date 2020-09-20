@@ -1,9 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Hardcodet.Wpf.TaskbarNotification;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
+using System.Windows;
 using System.Xml;
 using XMLSigner.Dialog.WysiwysDialog;
 
@@ -11,40 +14,78 @@ namespace XMLSigner.Library
 {
     class HttpServer
     {
-        HttpListener httpListener;
-
-        public HttpServer(int port)
-        {
-            Log.Print(LogLevel.High, "Started with Port " + port);
-            httpListener = new HttpListener();
-            httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
-#pragma warning disable CS0612 // Type or member is obsolete
-            _ = StartServerAsync();
-#pragma warning restore CS0612 // Type or member is obsolete
-
-            //StopServer();
-        }
-
-        internal void StopServer()
-        {
-            httpListener.Stop();
-        }
+        private static HttpListener _httpListener;
+        private static readonly Timer _timer = new Timer(100);
+        private static int _portNo;
 
         [Obsolete]
-        private async Task StartServerAsync()
+        private async void StartNonThreadedServerAsync()
         {
-            httpListener.Start();
-            while(true)
+            _httpListener.Start();
+            while (true)
             {
                 await ServerHandlerAsync();
             }
         }
 
         [Obsolete]
+        internal HttpServer(int port, bool isThreaded = true)
+        {
+            _portNo = port;
+            if (_httpListener != null)  //Making things singleton
+            {
+                return;
+                //throw new Exception("Already Initiated");
+            }
+            _httpListener = new HttpListener();
+            Log.Print(LogLevel.High, "Started with Port " + port);
+            _httpListener.Prefixes.Add("http://127.0.0.1:" + port + "/");
+
+            if(isThreaded)
+            {
+                _timer.Elapsed += async (sender, e) => await ServerHandlerAsync();
+                _ = StartServerAsync();
+            }
+            else
+            {
+                StartNonThreadedServerAsync();
+            }
+        }
+
+        internal static void RestartServer()
+        {
+            StopServer();
+            _ = StartServerAsync();
+        }
+
+        internal static void StopServer()
+        {
+            _timer.Stop();
+            _httpListener.Stop();
+        }
+
+        internal static async Task StartServerAsync()
+        {
+            /*
+            if(!Tsa.CheckIfLocalTimeIsOk())
+            {
+                MessageBox.Show("Please update your PC time to server time before signing!");
+                System.Diagnostics.Process.Start("https://answers.microsoft.com/en-us/windows/forum/windows_10-other_settings/how-to-force-windows-10-time-to-synch-with-a-time/20f3b546-af38-42fb-a2d0-d4df13cc8f43");
+            }
+            */
+            _httpListener.Start();
+            await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                App.ShowTaskbarNotificationAfterUpload("Server Started in port: "+ _portNo, BalloonIcon.Info);
+            }));
+            _timer.Start();
+        }
+
+        [Obsolete]
         private async Task ServerHandlerAsync()
         {
             try {
-                HttpListenerContext httpListenerContext = httpListener.GetContext();
+                HttpListenerContext httpListenerContext = _httpListener.GetContext();
                 httpListenerContext.Response.ContentType = "application/json";
 
                 httpListenerContext.Response.AppendHeader("Access-Control-Allow-Origin", "*");
@@ -138,12 +179,26 @@ namespace XMLSigner.Library
             {
                 return null;
             }
-            using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
-            {
-                if (inputDialog.ShowDialog() == false)
+            try {
+                bool isRejected = false;
+                await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                     using (WysiwysDialog inputDialog = new WysiwysDialog(downloadedFile.Item1.OuterXml))
+                     {
+                         if (inputDialog.ShowDialog() == false)
+                         {
+                             isRejected = true;
+                         }
+                     }
+                }));
+                if(isRejected)
                 {
                     return null;
                 }
+            }
+            catch(Exception ex)
+            {
+                Log.Print(LogLevel.Critical, ex.ToString());
             }
 
             XmlDocument signedXmldDoc = XmlSign.GetSignedXMLDocument(downloadedFile.Item1, XmlSign.GetX509Certificate2FromDongle(), procedureSerial, reason);
@@ -151,13 +206,23 @@ namespace XMLSigner.Library
             Tuple<XmlDocument, string> uploadFile = new Tuple<XmlDocument, string>(signedXmldDoc, downloadedFile.Item2);
             long? uploadFileID = await XmlSign.UploadFileAsync(uploadFile, token, previouSigningFileId, uploadUrl);
             Log.Print(LogLevel._Low, "Uploaded File ID - " + uploadFileID);
-            if (uploadFileID != null)
+            try
             {
-                App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");
+                if (uploadFileID != null)
+                {
+                    await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        App.ShowTaskbarNotificationAfterUpload("Signed XML File Uploaded Successfully");
+                    }));
+                }
+            }
+            catch(Exception ex)
+            {
+                Log.Print(LogLevel.Critical, ex.Message.ToString());
             }
             return uploadFileID;
             /*
-            //Verify
+            //Verify - No Need
             bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmldDoc);
             if (ifSignVerified == true)
             {

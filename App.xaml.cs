@@ -4,13 +4,14 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using XMLSigner.Library;
 
 namespace XMLSigner
 {
     public partial class App : Application
     {
-        private static TaskbarIcon tbi;
+        private static TaskbarIcon _taskBarIcon;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -26,34 +27,21 @@ namespace XMLSigner
             AddTaskbarIcon();
             base.OnStartup(e);
             RegisterApplicationToRunOnStartup();
-
-#pragma warning disable CS0612 // Type or member is obsolete
-            StartServer();
-#pragma warning restore CS0612 // Type or member is obsolete
         }
 
-        [Obsolete]
-        private void StartServer()
+        internal static void ShowTaskbarNotificationAfterUpload(string message, BalloonIcon icon = BalloonIcon.Warning) //"Signed XML File Uploaded Successfully"
         {
-            int port = NetworkPort.CheckIfPortAvailable(5050) ? 5050:8088;
-            //ThreadPool.QueueUserWorkItem(_ => new HttpServer(port));
-            //Task.Run(() => new HttpServer(port));
-            new HttpServer(port);
-        }
-
-        internal static void ShowTaskbarNotificationAfterUpload(string message) //"Signed XML File Uploaded Successfully"
-        {
-            tbi.ToolTipText = "BCC-CA XML Signing Client";
-            tbi.ShowBalloonTip("XML Signing Client", message, BalloonIcon.Warning);
+            _taskBarIcon.ToolTipText = "BCC-CA XML Signing Client";
+            _taskBarIcon.ShowBalloonTip("XML Signing Client", message, icon);
         }
 
         private void AddTaskbarIcon()
         {
-            tbi = (TaskbarIcon)FindResource("NotifyIcon");
-            tbi.Icon = XmlSign.BytesToIcon(XMLSigner.Properties.Resources.Logo);
-            tbi.ToolTipText = "BCC-CA XML Signing Client";
-            tbi.Visibility = Visibility.Visible;
-            tbi.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);
+            _taskBarIcon = (TaskbarIcon)FindResource("NotifyIcon");
+            _taskBarIcon.Icon = Adapter.BytesToIcon(XMLSigner.Properties.Resources.Logo);
+            _taskBarIcon.ToolTipText = "BCC-CA XML Signing Client";
+            _taskBarIcon.Visibility = Visibility.Visible;
+            //_taskBarIcon.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);
         }
 
         private void RegisterApplicationToRunOnStartup()
@@ -79,6 +67,30 @@ namespace XMLSigner
         void radioButton_CustomTSAUnSelect(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Un-Selected");
+        }
+
+        private void ExitApp_Click(object sender, RoutedEventArgs e)
+        {
+            Current.Shutdown();
+            Environment.Exit(0);
+        }
+
+        private void RestartApp_Click(object sender, RoutedEventArgs e)
+        {
+            HttpServer.RestartServer();
+        }
+
+        private void PortSelect_Click(object sender, RoutedEventArgs e)
+        {
+            switch(((RadioButton)sender).Name)
+            {
+                case "port1": //5050
+                    MessageBox.Show("5050");
+                    break;
+                case "port2": //8088
+                    MessageBox.Show("8088");
+                    break;
+            }
         }
     }
 }

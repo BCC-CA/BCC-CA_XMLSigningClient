@@ -13,18 +13,46 @@ namespace XMLSigner
     /// </summary>
     public partial class MainWindow : Window
     {
+        internal static HttpServer _server;
+
+        [Obsolete]
+        private void StartServer()
+        {
+            //int port = NetworkPort.CheckIfPortAvailable(5050) ? 5050 : 8088;
+            int? availablePort = NetworkPort.CheckFirstAvailablePort(new int[] { 5050, 8088 });
+            if (availablePort == null)
+            {
+                MessageBox.Show("Please stop app running on 5050 or 8088 port in your PC");
+                MessageBox.Show("Application is closing");
+                Application.Current.Shutdown();
+                Environment.Exit(0);
+            }
+            else
+            {
+                _server = new HttpServer((int)availablePort);
+            }
+        }
         public MainWindow()
         {
-            //This part is used for initializing element so that popup is loaded first time
-            using (WysiwysDialog inputDialog = new WysiwysDialog("")) { }
-            //using (LoadingDialog loadingDialog = new LoadingDialog("Opening App for the first time")) { }
+            try
+            {
+                //This part is used for initializing element so that popup is loaded first time
+                using (WysiwysDialog inputDialog = new WysiwysDialog("")) { }
+                //using (LoadingDialog loadingDialog = new LoadingDialog("Opening App for the first time")) { }
 
-            //Add waight during download - https://github.com/lim0513/ModernMessageBoxLibForWPF/blob/master/DemoProj/MainWindow.xaml.cs
-            //ActivateNotifyIcon();
-
+                //Add waight during download - https://github.com/lim0513/ModernMessageBoxLibForWPF/blob/master/DemoProj/MainWindow.xaml.cs
+                //ActivateNotifyIcon();
+            }
+            catch (Exception ex)
+            {
+                Log.Print(LogLevel.Critical, ex.ToString());
+            }
             InitializeComponent();
             this.Hide();
-            //this.Close();
+
+#pragma warning disable CS0612 // Type or member is obsolete
+            StartServer();
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)

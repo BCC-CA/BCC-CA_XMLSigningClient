@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 
 namespace XMLSigner.Library
 {
@@ -14,6 +15,7 @@ namespace XMLSigner.Library
 
     class Log
     {
+        static bool isErrorOccured = false;
         static string logLocation;// = @"C:\Log\Bcc-Signer\" + DateTime.Now.ToString("yyyy-MM-dd.log");
 
         internal static void Print(LogLevel level, string message)
@@ -25,16 +27,28 @@ namespace XMLSigner.Library
                 //Directory.CreateDirectory(logLocation);
                 Directory.CreateDirectory(Path.GetDirectoryName(logLocation));
             }
-
-            using (StreamWriter sw = File.AppendText(logLocation))
+            try
             {
-                sw.WriteLine(
-                       DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffffffK")
-                       + "\t" + level
-                       + "\t" + (new StackTrace().GetFrame(1).GetMethod()).ReflectedType.Name
-                       + "\t" + ":" + "\t" + message
+                using (StreamWriter sw = File.AppendText(logLocation))
+                {
+                    sw.WriteLine(
+                           DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffffffK")
+                           + "\t" + level
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                           + "\t" + new StackTrace().GetFrame(1).GetMethod().ReflectedType.Name
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                           + "\t" + ":" + "\t" + message
                        //+ Environment.NewLine
-                   );
+                       );
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                if(!isErrorOccured)
+                {
+                    MessageBox.Show("Log is not writing");
+                }
             }
         }
     }

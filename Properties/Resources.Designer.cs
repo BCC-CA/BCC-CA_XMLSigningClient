@@ -71,11 +71,44 @@ namespace XMLSigner.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to time.windows.com.
+        ///   Looks up a localized string similar to time.windows.com
+        ///time.google.com
+        ///time.cloudflare.com
+        ///time.facebook.com
+        ///time.apple.com
+        ///time-a-g.nist.gov
+        ///ntp1.stratum1.ru
+        ///ntp.ru
+        ///ntp.gsu.edu
+        ///ntp.nsu.ru
+        ///ntp.nict.jp.
         /// </summary>
-        internal static string NtpServerUrl {
+        internal static string NtpServerList {
             get {
-                return ResourceManager.GetString("NtpServerUrl", resourceCulture);
+                return ResourceManager.GetString("NtpServerList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://timestamp.globalsign.com/scripts/timstamp.dll
+        ///https://timestamp.geotrust.com/tsa
+        ///http://timestamp.comodoca.com/rfc3161
+        ///http://timestamp.wosign.com
+        ///http://tsa.startssl.com/rfc3161
+        ///http://time.certum.pl
+        ///http://timestamp.digicert.com
+        ///https://freetsa.org
+        ///http://dse200.ncipher.com/TSS/HttpTspServer
+        ///http://tsa.safecreative.org
+        ///http://zeitstempel.dfn.de
+        ///https://ca.signfiles.com/tsa/get.aspx
+        ///http://services.globaltrustfinder.com/adss/tsa
+        ///https://tsp.iaik.tugraz.at/tsp/TspRequest
+        ///http://timestam [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string TsaServerList {
+            get {
+                return ResourceManager.GetString("TsaServerList", resourceCulture);
             }
         }
     }

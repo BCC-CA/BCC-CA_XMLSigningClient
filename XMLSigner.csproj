@@ -13,14 +13,31 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublisherName>BCC-CA</PublisherName>
     <Version>0.0.1</Version>
+    <NoWin32Manifest>true</NoWin32Manifest>
+    <SignAssembly>false</SignAssembly>
+    <PackageIcon>Logo.ico</PackageIcon>
+    <RepositoryUrl>https://github.com/AbrarJahin/BCC-CA_XMLSigningClient</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/AbrarJahin/BCC-CA_XMLSigningClient</PackageProjectUrl>
+    <Nullable>warnings</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Prefer32Bit>true</Prefer32Bit>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove=".gitignore" />
+    <None Include="Resources\Logo.ico">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
