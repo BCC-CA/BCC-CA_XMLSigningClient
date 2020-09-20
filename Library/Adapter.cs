@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -16,6 +17,14 @@ namespace XMLSigner.Library
             return Convert.ToBase64String(plainTextBytes);
         }
         */
+
+        internal static Icon BytesToIcon(byte[] bytes)
+        {
+            using (MemoryStream ms = new MemoryStream(bytes))
+            {
+                return new Icon(ms);
+            }
+        }
 
         internal static DateTime Base64DecodTime(string encodedTimeString)
         {

@@ -38,7 +38,7 @@ namespace XMLSigner
         private void AddTaskbarIcon()
         {
             _taskBarIcon = (TaskbarIcon)FindResource("NotifyIcon");
-            _taskBarIcon.Icon = XmlSign.BytesToIcon(XMLSigner.Properties.Resources.Logo);
+            _taskBarIcon.Icon = Adapter.BytesToIcon(XMLSigner.Properties.Resources.Logo);
             _taskBarIcon.ToolTipText = "BCC-CA XML Signing Client";
             _taskBarIcon.Visibility = Visibility.Visible;
             //_taskBarIcon.ShowBalloonTip("XML Signing Client", "BCC-CA XML Signing Client is running in background", BalloonIcon.Info);

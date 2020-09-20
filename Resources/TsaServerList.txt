@@ -1,3 +1,4 @@
+http://ca.signfiles.com/TSAServer.aspx
 http://timestamp.globalsign.com/scripts/timstamp.dll
 https://timestamp.geotrust.com/tsa
 http://timestamp.comodoca.com/rfc3161

@@ -1,8 +1,6 @@
 ﻿using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
@@ -19,14 +17,6 @@ namespace XMLSigner.Library
 {
     class XmlSign
     {
-        internal static Icon BytesToIcon(byte[] bytes)
-        {
-            using (MemoryStream ms = new MemoryStream(bytes))
-            {
-                return new Icon(ms);
-            }
-        }
-
         [Obsolete]
         internal static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(string downloadUrl)
         {
