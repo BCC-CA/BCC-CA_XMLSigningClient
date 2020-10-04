@@ -220,7 +220,6 @@ namespace XMLSigner.Library
             {
                 Log.Print(LogLevel.Critical, ex.Message.ToString());
             }
-            return uploadFileID;
             /*
             //Verify - No Need
             bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmldDoc);
@@ -235,8 +234,8 @@ namespace XMLSigner.Library
             else
             {
                 MessageBox.Show("File Has No Sign");
-            }
-            */
+            }*/
+            return uploadFileID;
         }
     }
 }

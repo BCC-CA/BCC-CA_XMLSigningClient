@@ -99,8 +99,13 @@ namespace XMLSigner.Library
                 if (lastSignVerificationStatus == false) {
                     return false;   //Not counting all sign, find first invalid sign and tell that file is invalid
                 }
+                string id = GetLastSignatureId(xmlDocument);
                 //Update xmlDocument by removing last sign tag
                 xmlDocument = RemoveLastSign(xmlDocument);
+                if (Tsa.ValidateTimestamp(xmlDocument, id) == false)
+                {
+                    return false;   //The TSA signature is invalid
+                }
             }
             return true;
         }
@@ -182,6 +187,20 @@ namespace XMLSigner.Library
             return new X509Certificate2(Encoding.ASCII.GetBytes(certString));
         }
 
+        private static string GetLastSignatureId(XmlDocument xmlDocument)
+        {
+            if (!CheckIfDocumentPreviouslySigned(xmlDocument))
+            {
+                return null;
+            }
+            XmlNodeList nodeList = xmlDocument.GetElementsByTagName("Signature");
+            XmlDocument document = new XmlDocument();
+            document.LoadXml(((XmlElement)nodeList[nodeList.Count - 1]).OuterXml);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(document.GetElementsByTagName("Reference")[0].OuterXml);
+            return doc.DocumentElement.Attributes["Id"].Value;
+        }
+
         private static bool VerifyMetaDataObjectSignature(XmlElement metaXmlElement, AsymmetricAlgorithm ExtractedKey)
         {
             return true;
@@ -231,8 +250,8 @@ namespace XMLSigner.Library
                 Tsa tsa = new Tsa();
                 string signedTsaString = tsa.GetSignedHashFromTsa(xmlDocument);
                 DateTime? tsaTime = Tsa.GetTsaTimeFromSignedHash(signedTsaString);
-                reference.Id = Base64EncodedCurrentTime(tsaTime);
-                //reference.Id = signedTsaString;
+                //reference.Id = Base64EncodedCurrentTime(tsaTime);
+                reference.Id = signedTsaString;
                 //bool status = Tsa.ValidateTimestamp(xmlDocument, reference.Id);
                 //reference.TransformChain = ;
                 /////////////////////

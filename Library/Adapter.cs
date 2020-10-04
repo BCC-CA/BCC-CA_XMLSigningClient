@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Tsp;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -26,10 +27,28 @@ namespace XMLSigner.Library
             }
         }
 
-        internal static DateTime Base64DecodTime(string encodedTimeString)
+        internal static DateTime? Base64DecodTime(string encodedTimeString)
         {
-            byte[] base64EncodedBytes = Convert.FromBase64String(encodedTimeString);
-            return DateTime.Parse(Encoding.UTF8.GetString(base64EncodedBytes));
+            try
+            {
+                byte[] base64EncodedBytes = Convert.FromBase64String(encodedTimeString);
+                return DateTime.Parse(Encoding.UTF8.GetString(base64EncodedBytes));
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    byte[] bytes = Convert.FromBase64String(encodedTimeString);
+                    TimeStampResponse timeStampResponse = new TimeStampResponse(bytes);
+                    return timeStampResponse.TimeStampToken.TimeStampInfo.GenTime;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    //throw ex;
+                    return null;
+                }
+            }
         }
 
         internal static XmlDocument SerializeToXml<T>(T source)
