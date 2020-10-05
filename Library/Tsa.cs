@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace XMLSigner.Library
@@ -12,13 +13,67 @@ namespace XMLSigner.Library
     class Tsa
     {
         //Rfc3161TimestampRequest request;// = Rfc3161TimestampRequest.CreateFromHash(byte[] , HashAlgorithmName.SHA1);
-        private string stampURI;
+        private static string stampURI;
 
-        internal Tsa(string stampURI = "http://timestamp.globalsign.com/scripts/timstamp.dll")
+        internal Tsa(string tsa = "http://timestamp.globalsign.com/scripts/timstamp.dll")
         {
+            stampURI = tsa;
             //"http://www.cryptopro.ru/tsp/tsp.srf"
-            this.stampURI = stampURI;
             ///request = Rfc3161TimestampRequest.CreateFromHash(data, HashAlgorithmName.SHA1);
+        }
+
+        internal static async Task<bool> TrySettingNewTsaAsync(string newTsaUrl)
+        {
+            try
+            {
+                bool ifNewTsaOk = await CheckIfValidTsaAsync(newTsaUrl);
+                if (ifNewTsaOk)
+                {
+                    stampURI = newTsaUrl;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        private static async Task<bool> CheckIfValidTsaAsync(string url)
+        {
+            WebRequest request = WebRequest.Create(url);
+            request.Timeout = 15000;    //15 second
+            request.Method = "HEAD";
+            HttpWebResponse response = (HttpWebResponse)await Task.Factory.FromAsync<WebResponse>(
+                                        request.BeginGetResponse,
+                                        request.EndGetResponse,
+                                        null
+                                        );
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
+        private static bool CheckIfValidTsa(string url)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Timeout = 15000;    //15 second
+            request.Method = "HEAD";
+            try
+            {
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    return response.StatusCode == HttpStatusCode.OK;
+                }
+            }
+            catch (WebException)
+            {
+                return false;
+            }
+            //throw new NotImplementedException();
         }
 
         private TimeStampResponse GetSignedHashFromTsa(byte[] hash)
@@ -62,24 +117,6 @@ namespace XMLSigner.Library
             respStream.Close();
 
             return response;
-        }
-
-        internal static bool CheckIfUrlReachable(string url)
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Timeout = 15000;    //15 second
-            request.Method = "HEAD";
-            try
-            {
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                {
-                    return response.StatusCode == HttpStatusCode.OK;
-                }
-            }
-            catch (WebException)
-            {
-                return false;
-            }
         }
 
         private static bool ValidateTimestamp(TimeStampResponse tr, byte[] hash)

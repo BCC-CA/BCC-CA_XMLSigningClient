@@ -16,6 +16,8 @@ namespace XMLSigner.Library
     {
         private static HttpListener _httpListener;
         private static readonly Timer _timer = new Timer(100);
+        //private static readonly System.Windows.Forms.Timer myTimer = new System.Windows.Forms.Timer();
+
         private static int _portNo;
 
         [Obsolete]
