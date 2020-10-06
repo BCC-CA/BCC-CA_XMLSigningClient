@@ -37,7 +37,29 @@ namespace XMLSigner.Library
                     return false;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        internal static bool TrySettingNewTsa(string newTsaUrl)
+        {
+            try
+            {
+                bool ifNewTsaOk = CheckIfValidTsa(newTsaUrl);
+                if (ifNewTsaOk)
+                {
+                    stampURI = newTsaUrl;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return false;

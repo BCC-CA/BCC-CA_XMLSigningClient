@@ -27,6 +27,7 @@ namespace XMLSigner
             AddTaskbarIcon();
             base.OnStartup(e);
             RegisterApplicationToRunOnStartup();
+            //InitializeComponent();
         }
 
         internal static void ShowTaskbarNotificationAfterUpload(string message, BalloonIcon icon = BalloonIcon.Warning) //"Signed XML File Uploaded Successfully"
@@ -61,12 +62,17 @@ namespace XMLSigner
 
         void radioButton_CustomTSASelect(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Selected");
+            GetCustomTsaTextBox().IsEnabled = true;
+        }
+
+        private TextBox GetCustomTsaTextBox()
+        {
+            return LogicalTreeHelper.FindLogicalNode(_taskBarIcon.ContextMenu, "TSA") as TextBox;
         }
 
         void radioButton_CustomTSAUnSelect(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Un-Selected");
+            GetCustomTsaTextBox().IsEnabled = false;
         }
 
         private void ExitApp_Click(object sender, RoutedEventArgs e)
@@ -80,16 +86,16 @@ namespace XMLSigner
             HttpServer.RestartServer();
         }
 
-        private void PortSelect_Click(object sender, RoutedEventArgs e)
+        private void TryUpdateWithCustomTsa(object sender, RoutedEventArgs e)
         {
-            switch(((RadioButton)sender).Name)
+            //await Tsa.TrySettingNewTsaAsync(GetCustomTsaTextBox().Text);
+            if(!Tsa.TrySettingNewTsa(GetCustomTsaTextBox().Text))
             {
-                case "port1": //5050
-                    MessageBox.Show("5050");
-                    break;
-                case "port2": //8088
-                    MessageBox.Show("8088");
-                    break;
+                ShowTaskbarNotificationAfterUpload("TSA update Failed", BalloonIcon.Error);
+            }
+            else
+            {
+                ShowTaskbarNotificationAfterUpload("TSA updated successfully");
             }
         }
     }
