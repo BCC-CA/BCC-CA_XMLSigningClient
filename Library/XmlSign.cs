@@ -21,6 +21,7 @@ namespace XMLSigner.Library
         internal static async Task<Tuple<XmlDocument, string>> DownloadFileWithIdAsync(string downloadUrl)
         {
             RestClient client = new RestClient(downloadUrl);
+            client.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true; //Forcely disable cert validation
             RestRequest request = new RestRequest(Method.GET);
             IRestResponse response = await client.ExecuteTaskAsync(request);
 
@@ -55,6 +56,7 @@ namespace XMLSigner.Library
             Log.Print(LogLevel._Low, "Upload URL - " + uploadUrl);
 
             RestClient client = new RestClient(uploadUrl);
+            client.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;    //Disable Certificate Check
             RestRequest uploadRequest = new RestRequest("", Method.POST);
             if(previousSignedFileId != null)
             {
