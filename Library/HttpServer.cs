@@ -16,6 +16,8 @@ namespace XMLSigner.Library
     {
         private static HttpListener _httpListener;
         private static readonly Timer _timer = new Timer(100);
+        //private static readonly System.Windows.Forms.Timer myTimer = new System.Windows.Forms.Timer();
+
         private static int _portNo;
 
         [Obsolete]
@@ -220,7 +222,6 @@ namespace XMLSigner.Library
             {
                 Log.Print(LogLevel.Critical, ex.Message.ToString());
             }
-            return uploadFileID;
             /*
             //Verify - No Need
             bool? ifSignVerified = XmlSign.VerifyAllSign(signedXmldDoc);
@@ -235,8 +236,8 @@ namespace XMLSigner.Library
             else
             {
                 MessageBox.Show("File Has No Sign");
-            }
-            */
+            }*/
+            return uploadFileID;
         }
     }
 }

@@ -1,153 +1,222 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Tsp;
+using System;
+using System.IO;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace XMLSigner.Library
 {
     class Tsa
     {
-        static string activeServer;
+        //Rfc3161TimestampRequest request;// = Rfc3161TimestampRequest.CreateFromHash(byte[] , HashAlgorithmName.SHA1);
+        private static string stampURI;
 
-        static Tsa()
+        internal Tsa(string tsa = "http://timestamp.globalsign.com/scripts/timstamp.dll")
         {
-            activeServer = GetFirstActiveNtpServerFromList();
-            //activeServer = Properties.Resources.NtpServerUrl;
+            stampURI = tsa;
+            //"http://www.cryptopro.ru/tsp/tsp.srf"
+            ///request = Rfc3161TimestampRequest.CreateFromHash(data, HashAlgorithmName.SHA1);
         }
 
-        private static string GetFirstActiveNtpServerFromList()
-        {
-            HashSet<string> ntpServers = GetNtpServerList();
-            foreach(string server in ntpServers)
-            {
-                if(IsNtpWorking(server))
-                {
-                    return server;
-                }
-            }
-            return null;
-        }
-
-        private static bool IsNtpWorking(string server)
-        {
-            return TryGetNetworkTimeFromServer(server) != null ? true : false;
-        }
-
-        private static bool PingHost(string nameOrAddress)
-        {
-            bool pingable = false;
-            Ping pinger = null;
-            try
-            {
-                pinger = new Ping();
-                PingReply reply = pinger.Send(nameOrAddress);
-                pingable = reply.Status == IPStatus.Success;
-            }
-            catch (PingException)
-            {
-                // Discard PingExceptions and return false;
-            }
-            finally
-            {
-                if (pinger != null)
-                {
-                    pinger.Dispose();
-                }
-            }
-            return pingable;
-        }
-
-        private static HashSet<string> GetNtpServerList()
-        {
-            string[] ntpServerArray = Properties.Resources.NtpServerList.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            HashSet<string> ntpServerList = new HashSet<string>(ntpServerArray);
-            return ntpServerList;
-        }
-
-        private static bool CheckForInternetConnection()
+        internal static async Task<bool> TrySettingNewTsaAsync(string newTsaUrl)
         {
             try
             {
-                using (var client = new WebClient())
-                using (client.OpenRead("http://google.com/generate_204"))
+                bool ifNewTsaOk = await CheckIfValidTsaAsync(newTsaUrl);
+                if (ifNewTsaOk)
+                {
+                    stampURI = newTsaUrl;
                     return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            catch
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        internal static bool TrySettingNewTsa(string newTsaUrl)
+        {
+            try
+            {
+                bool ifNewTsaOk = CheckIfValidTsa(newTsaUrl);
+                if (ifNewTsaOk)
+                {
+                    stampURI = newTsaUrl;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        private static async Task<bool> CheckIfValidTsaAsync(string url)
+        {
+            WebRequest request = WebRequest.Create(url);
+            request.Timeout = 15000;    //15 second
+            request.Method = "HEAD";
+            HttpWebResponse response = (HttpWebResponse)await Task.Factory.FromAsync<WebResponse>(
+                                        request.BeginGetResponse,
+                                        request.EndGetResponse,
+                                        null
+                                        );
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
+        private static bool CheckIfValidTsa(string url)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Timeout = 15000;    //15 second
+            request.Method = "HEAD";
+            try
+            {
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    return response.StatusCode == HttpStatusCode.OK;
+                }
+            }
+            catch (WebException)
+            {
+                return false;
+            }
+            //throw new NotImplementedException();
+        }
+
+        private TimeStampResponse GetSignedHashFromTsa(byte[] hash)
+        {
+            /*
+            if(!CheckIfUrlReachable(stampURI))
+            {
+                return null;
+            }
+            */
+
+            TimeStampRequestGenerator reqGen = new TimeStampRequestGenerator();
+            // Dummy request
+            TimeStampRequest request = reqGen.Generate(
+                        TspAlgorithms.Sha1,
+                        hash,
+                        BigInteger.ValueOf(100)
+                    );
+            byte[] reqData = request.GetEncoded();
+
+            HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(stampURI);
+            httpReq.Method = "POST";
+            httpReq.ContentType = "application/timestamp-query";
+            httpReq.ContentLength = reqData.Length;
+
+            //Configure Timeout
+            //httpReq.Timeout = 5000;
+            //httpReq.ReadWriteTimeout = 32000;
+
+
+            // Write the request content
+            Stream reqStream = httpReq.GetRequestStream();
+            reqStream.Write(reqData, 0, reqData.Length);
+            reqStream.Close();
+
+            HttpWebResponse httpResp = (HttpWebResponse)httpReq.GetResponse();
+
+            // Read the response
+            Stream respStream = new BufferedStream(httpResp.GetResponseStream());
+            TimeStampResponse response = new TimeStampResponse(respStream);
+            respStream.Close();
+
+            return response;
+        }
+
+        private static bool ValidateTimestamp(TimeStampResponse tr, byte[] hash)
+        {
+            try
+            {
+                TimeStampRequestGenerator reqGen = new TimeStampRequestGenerator();
+                TimeStampRequest request = reqGen.Generate(
+                        TspAlgorithms.Sha1,
+                        hash,
+                        BigInteger.ValueOf(100)
+                    );
+
+                tr.Validate(request);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            return tr.GetFailInfo() == null;
+        }
+
+        internal static bool ValidateTimestamp(XmlDocument xmlDocument, string tsaSignedHashString)
+        {
+            try
+            {
+                byte[] bytes = Convert.FromBase64String(tsaSignedHashString);
+                TimeStampResponse timeStampResponse = new TimeStampResponse(bytes);
+                byte[] hash = GetXmlHashByteStream(xmlDocument);
+                return ValidateTimestamp(timeStampResponse, hash);
+            }
+            catch(Exception)
             {
                 return false;
             }
         }
 
-        private static DateTime? TryGetNetworkTimeFromServer(string activeServer)
+        internal static DateTime? GetTsaTimeFromSignedHash(string tsaSignedHashString)
         {
             try {
-                byte[] ntpData = new byte[48];
-                ntpData[0] = 0x1B; //LeapIndicator = 0 (no warning), VersionNum = 3 (IPv4 only), Mode = 3 (Client Mode)
-
-                IPAddress[] addresses = Dns.GetHostEntry(activeServer).AddressList;
-                IPEndPoint ipEndPoint = new IPEndPoint(addresses[0], 123);
-                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-                socket.Connect(ipEndPoint);
-                socket.Send(ntpData);
-                socket.Receive(ntpData);
-                socket.Close();
-
-                ulong intPart = (ulong)ntpData[40] << 24 | (ulong)ntpData[41] << 16 | (ulong)ntpData[42] << 8 | (ulong)ntpData[43];
-                ulong fractPart = (ulong)ntpData[44] << 24 | (ulong)ntpData[45] << 16 | (ulong)ntpData[46] << 8 | (ulong)ntpData[47];
-
-                ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
-                DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
-
-                return networkDateTime;
+                byte[] bytes = Convert.FromBase64String(tsaSignedHashString);
+                TimeStampResponse timeStampResponse = new TimeStampResponse(bytes);
+                return timeStampResponse.TimeStampToken.TimeStampInfo.GenTime;
             }
             catch(Exception ex)
             {
-                Log.Print(LogLevel.Medium, ex.ToString());
+                Console.WriteLine(ex.Message);
+                //throw ex;
                 return null;
             }
         }
 
-        private static DateTime GetNetworkTime()
+        internal string GetSignedHashFromTsa(XmlDocument xmlDxocument)
         {
-#if DEBUG
-            if (!CheckForInternetConnection())
-            {
-                return DateTime.UtcNow;
-            }
-#endif
-            //Should check time server by certificate, not added now
-            byte[] ntpData = new byte[48];
-            ntpData[0] = 0x1B; //LeapIndicator = 0 (no warning), VersionNum = 3 (IPv4 only), Mode = 3 (Client Mode)
-
-            IPAddress[] addresses = Dns.GetHostEntry(activeServer).AddressList;
-            IPEndPoint ipEndPoint = new IPEndPoint(addresses[0], 123);
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-            socket.Connect(ipEndPoint);
-            socket.Send(ntpData);
-            socket.Receive(ntpData);
-            socket.Close();
-
-            ulong intPart = (ulong)ntpData[40] << 24 | (ulong)ntpData[41] << 16 | (ulong)ntpData[42] << 8 | (ulong)ntpData[43];
-            ulong fractPart = (ulong)ntpData[44] << 24 | (ulong)ntpData[45] << 16 | (ulong)ntpData[46] << 8 | (ulong)ntpData[47];
-
-            ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
-            DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
-
-            return networkDateTime;
+            byte[] hash = GetXmlHashByteStream(xmlDxocument);
+            TimeStampResponse timeStampResponse = GetSignedHashFromTsa(hash);
+            byte[] signedEncodedByteStream = timeStampResponse.GetEncoded();
+            return Convert.ToBase64String(signedEncodedByteStream);
         }
 
-        internal static bool CheckIfLocalTimeIsOk(int allowedMaxMinuiteDiff = 2)
+        private static string GetXmlHash(XmlDocument xmlDoc)
         {
-            DateTime ntpTime = GetNetworkTime();
-            DateTime localTime = DateTime.UtcNow;
-            TimeSpan timeDiff = ntpTime - localTime;
-            if (Math.Abs(timeDiff.TotalMinutes) <= allowedMaxMinuiteDiff)
-                return true;
-            else
-                return false;
+            return Convert.ToBase64String(GetXmlHashByteStream(xmlDoc));
+        }
+
+        private static byte[] GetXmlHashByteStream(XmlDocument xmlDoc)
+        {
+            byte[] hash;
+            XmlDsigC14NTransform transformer = new XmlDsigC14NTransform();
+            transformer.LoadInput(xmlDoc);
+            using (Stream stream = (Stream)transformer.GetOutput(typeof(Stream)))
+            {
+                SHA1 sha1 = SHA1.Create();
+                hash = sha1.ComputeHash(stream);
+                stream.Close();
+            }
+            return hash;
         }
     }
 }

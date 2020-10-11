@@ -99,8 +99,13 @@ namespace XMLSigner.Library
                 if (lastSignVerificationStatus == false) {
                     return false;   //Not counting all sign, find first invalid sign and tell that file is invalid
                 }
+                string id = GetLastSignatureId(xmlDocument);
                 //Update xmlDocument by removing last sign tag
                 xmlDocument = RemoveLastSign(xmlDocument);
+                if (Tsa.ValidateTimestamp(xmlDocument, id) == false)
+                {
+                    return false;   //The TSA signature is invalid
+                }
             }
             return true;
         }
@@ -182,6 +187,20 @@ namespace XMLSigner.Library
             return new X509Certificate2(Encoding.ASCII.GetBytes(certString));
         }
 
+        private static string GetLastSignatureId(XmlDocument xmlDocument)
+        {
+            if (!CheckIfDocumentPreviouslySigned(xmlDocument))
+            {
+                return null;
+            }
+            XmlNodeList nodeList = xmlDocument.GetElementsByTagName("Signature");
+            XmlDocument document = new XmlDocument();
+            document.LoadXml(((XmlElement)nodeList[nodeList.Count - 1]).OuterXml);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(document.GetElementsByTagName("Reference")[0].OuterXml);
+            return doc.DocumentElement.Attributes["Id"].Value;
+        }
+
         private static bool VerifyMetaDataObjectSignature(XmlElement metaXmlElement, AsymmetricAlgorithm ExtractedKey)
         {
             return true;
@@ -199,10 +218,11 @@ namespace XMLSigner.Library
             */
 
             //Check if local time is OK
-            if(!Tsa.CheckIfLocalTimeIsOk()) {
+            /*
+             * if(!Ntp.CheckIfLocalTimeIsOk()) {
                 MessageBox.Show("PC Time is need to be updated before sign !");
                 return null;    //Last Sign Not Verified
-            }
+            }*/
 
             //Before signing, should check if current document sign is valid or not, if current document is invalid, then new sign should not be added - not implemented yet, but should be
             if (CheckIfDocumentPreviouslySigned(xmlDocument))
@@ -224,10 +244,15 @@ namespace XMLSigner.Library
                 // Create a reference to be signed
                 Reference reference = new Reference();
                 /////////////////////
-                reference.Uri = "";//"#" + procedureSerial;
+                reference.Uri = ""; //"#" + procedureSerial;
                 //reference.Type = reason;
                 //reference.Id = DateTime.UtcNow.Ticks.ToString();
-                reference.Id = Base64EncodedCurrentTime();
+                Tsa tsa = new Tsa();
+                string signedTsaString = tsa.GetSignedHashFromTsa(xmlDocument);
+                DateTime? tsaTime = Tsa.GetTsaTimeFromSignedHash(signedTsaString);
+                //reference.Id = Base64EncodedCurrentTime(tsaTime);
+                reference.Id = signedTsaString;
+                //bool status = Tsa.ValidateTimestamp(xmlDocument, reference.Id);
                 //reference.TransformChain = ;
                 /////////////////////
                 // Add an enveloped transformation to the reference.            
@@ -278,9 +303,13 @@ namespace XMLSigner.Library
             return xmlDocument;
         }
 
-        private static string Base64EncodedCurrentTime()
+        private static string Base64EncodedCurrentTime(DateTime? time)
         {
-            byte[] plainTextBytes = Encoding.UTF8.GetBytes(DateTime.UtcNow.ToString());
+            if (time == null)
+            {
+                time = DateTime.UtcNow;
+            }
+            byte[] plainTextBytes = Encoding.UTF8.GetBytes(((DateTime)time).ToString());
             return Convert.ToBase64String(plainTextBytes);
         }
 
@@ -312,7 +341,7 @@ namespace XMLSigner.Library
             //xmlDoc = GetSignedMetaData(xmlDoc, certificate);
 
             dataObject.Data = xmlDoc.ChildNodes;
-            dataObject.Id = new Random().Next().ToString();
+            dataObject.Id = Base64EncodedCurrentTime(null);// new Random().Next().ToString();
             return dataObject;
         }
 

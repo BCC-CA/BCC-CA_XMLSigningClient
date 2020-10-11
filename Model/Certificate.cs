@@ -23,12 +23,19 @@ namespace XMLSigner.Model
             ValidTo = certificate.NotAfter;
             Issuer = certificate.Issuer;
             Subject = certificate.Subject;
-            SigningTime = Adapter.Base64DecodTime(timeString);
-
-            IssuedBy = GetCN(certificate.Issuer);
-            IssuedTo = GetCN(certificate.Subject);
-            SerialNumber = certificate.SerialNumber;
-            Validity = CheckVaildity();
+            DateTime? siginigTime = Adapter.Base64DecodTime(timeString);
+            if(siginigTime.HasValue)
+            {
+                SigningTime = (DateTime)siginigTime;
+                IssuedBy = GetCN(certificate.Issuer);
+                IssuedTo = GetCN(certificate.Subject);
+                SerialNumber = certificate.SerialNumber;
+                Validity = CheckVaildity();
+            }
+            else
+            {
+                Validity = ValidityStatus.Invalid;
+            }
         }
 
         private ValidityStatus CheckVaildity()
