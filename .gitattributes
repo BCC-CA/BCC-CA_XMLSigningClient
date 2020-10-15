@@ -1,0 +1,2 @@
+.doc/publish filter=lfs diff=lfs merge=lfs -text
+.doc/publish/XML[[:space:]]Signing[[:space:]]Client.exe filter=lfs diff=lfs merge=lfs -text
