@@ -336,7 +336,7 @@ namespace XMLSigner.Library
 
             XmlNode child2 = root.AppendChild(xmlDoc.CreateElement("signing-reason", "signing-local-time"));
             XmlAttribute childAtt2 = child2.Attributes.Append(xmlDoc.CreateAttribute("local-time"));
-            childAtt2.InnerText = DateTime.Now.ToString();          //Local Time
+            childAtt2.InnerText = DateTime.UtcNow.ToString();          //Local Time
             child2.InnerText = reason;    //Server Time
 
             //Sign Meta Data and store without key
@@ -393,7 +393,7 @@ namespace XMLSigner.Library
                     if (
                         cert.HasPrivateKey
                         && !cert.Issuer.Contains("localhost")
-                        && (cert.NotAfter>=DateTime.Now && cert.NotBefore<=DateTime.Now) 
+                        && (cert.NotAfter>=DateTime.UtcNow && cert.NotBefore<=DateTime.UtcNow) 
                         )
                     {
                         certList.Add(cert);

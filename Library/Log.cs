@@ -24,7 +24,6 @@ namespace XMLSigner.Library
             // If directory does not exist, create it. 
             if (!Directory.Exists(logLocation))
             {
-                //Directory.CreateDirectory(logLocation);
                 Directory.CreateDirectory(Path.GetDirectoryName(logLocation));
             }
             try
