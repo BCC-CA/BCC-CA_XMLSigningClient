@@ -212,20 +212,6 @@ namespace XMLSigner.Library
         //tutorial - https://www.asptricks.net/2015/09/sign-xmldocument-with-x509certificate2.html
         internal static XmlDocument GetSignedXMLDocument(XmlDocument xmlDocument, X509Certificate2 certificate, long procedureSerial = -1, string reason = "")
         {
-            /*
-            //Check certificate velidity from server and certificate varification here first - not implemented yet
-            if(!certificate.Verify()) {
-                return null;    //Certificate Not Verified
-            }
-            */
-
-            //Check if local time is OK
-            /*
-             * if(!Ntp.CheckIfLocalTimeIsOk()) {
-                MessageBox.Show("PC Time is need to be updated before sign !");
-                return null;    //Last Sign Not Verified
-            }*/
-
             //Before signing, should check if current document sign is valid or not, if current document is invalid, then new sign should not be added - not implemented yet, but should be
             if (CheckIfDocumentPreviouslySigned(xmlDocument))
             {
@@ -323,16 +309,19 @@ namespace XMLSigner.Library
 
         private static DataObject CreateMetaDataObject(long uniqueId, string reason)
         {
+            /*
+             * This parts can be modified, currently only 2 meta objects are added (unique tag is never used)
+             */
             //https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.import?view=netframework-4.8
             //Should add a sign with it also so that it can be proven that data is not tempered and should add verifire for it also
             DataObject dataObject = new DataObject();
             XmlDocument xmlDoc = new XmlDocument();
             XmlNode root = xmlDoc.AppendChild(xmlDoc.CreateElement("meta", "meta-data"));
 
-            XmlNode child1 = root.AppendChild(xmlDoc.CreateElement("unique", "unique-id"));
-            XmlAttribute childAtt1 = child1.Attributes.Append(xmlDoc.CreateAttribute("server-unique"));
+            XmlNode child1 = root.AppendChild(xmlDoc.CreateElement("unique", "base64-desktop-pc-time"));
+            //XmlAttribute childAtt1 = child1.Attributes.Append(xmlDoc.CreateAttribute("server-unique"));
             //childAtt1.InnerText = uniqueId.ToString();
-            child1.InnerText = uniqueId.ToString();
+            child1.InnerText = Base64EncodedCurrentTime(null);
 
             XmlNode child2 = root.AppendChild(xmlDoc.CreateElement("signing-reason", "signing-local-time"));
             XmlAttribute childAtt2 = child2.Attributes.Append(xmlDoc.CreateAttribute("local-time"));
@@ -343,7 +332,7 @@ namespace XMLSigner.Library
             //xmlDoc = GetSignedMetaData(xmlDoc, certificate);
 
             dataObject.Data = xmlDoc.ChildNodes;
-            dataObject.Id = Base64EncodedCurrentTime(null);// new Random().Next().ToString();
+            dataObject.Id = uniqueId.ToString();// new Random().Next().ToString();
             return dataObject;
         }
 
